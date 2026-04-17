@@ -41,6 +41,8 @@ export function CameraView({ onCapture, onError }: CameraViewProps) {
   const BASE = import.meta.env.BASE_URL;
   const capUrl = `${BASE}monkey-cap.svg`;
 
+  const titleImageRef = useRef<HTMLImageElement | null>(null);
+
   const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
 
   const smoothFace = (current: FaceDetection | null, target: FaceDetection): FaceDetection => {
@@ -175,6 +177,11 @@ export function CameraView({ onCapture, onError }: CameraViewProps) {
 
   useEffect(() => {
     let mounted = true;
+    const titleImg = new Image();
+titleImg.src = `${BASE}kidnapped-title.png`;
+titleImg.onload = () => {
+  titleImageRef.current = titleImg;
+};
 
     const img = new Image();
     img.onload = () => {
@@ -297,13 +304,19 @@ export function CameraView({ onCapture, onError }: CameraViewProps) {
 
       const fontBase = Math.min(w, h);
 
-      // Top: KIDNAPPED
-      ctx.font = `bold ${fontBase * 0.12}px 'Courier New', monospace`;
-      ctx.textAlign = "center";
-      ctx.fillStyle = "rgba(0,0,0,0.6)";
-      ctx.fillText("KIDNAPPED", w / 2 + 2, fontBase * 0.14 + 2);
-      ctx.fillStyle = "#ffffff";
-      ctx.fillText("KIDNAPPED", w / 2, fontBase * 0.14);
+const titleImg = titleImageRef.current;
+if (titleImg) {
+  const imgW = w * 0.7;
+  const imgH = (titleImg.height / titleImg.width) * imgW;
+
+  ctx.drawImage(
+    titleImg,
+    w / 2 - imgW / 2,
+    fontBase * 0.05,
+    imgW,
+    imgH
+  );
+}
 
       // Red underline
       ctx.strokeStyle = "#cc0000";
@@ -380,15 +393,11 @@ export function CameraView({ onCapture, onError }: CameraViewProps) {
         {/* Top: KIDNAPPED text */}
         <div className="absolute top-0 left-0 right-0 z-20 pt-safe">
           <div className="flex flex-col items-center pt-6">
-            <span
-              className="text-4xl font-bold tracking-[0.25em] text-white uppercase"
-              style={{
-                fontFamily: "'Courier New', monospace",
-                textShadow: "2px 2px 8px rgba(0,0,0,0.9), 0 0 20px rgba(0,0,0,0.7)",
-              }}
-            >
-              KIDNAPPED
-            </span>
+            <img
+  src={`${BASE}kidnapped-title.png`}
+  alt="KIDNAPPED"
+  className="w-[80%] max-w-xs object-contain"
+/>
             <div
               className="h-[2px] bg-red-600 mt-1"
               style={{ width: "85%" }}
