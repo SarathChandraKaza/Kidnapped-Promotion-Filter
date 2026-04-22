@@ -284,82 +284,36 @@ titleImg.onload = () => {
     ctx.restore();
 
     // Draw cinematic overlay text
-    const drawText = () => {
-      // Subtle grain overlay
-      ctx.fillStyle = "rgba(0,0,0,0.1)";
-      ctx.fillRect(0, 0, w, h);
+const drawBranding = () => {
+  // Subtle grain
+  ctx.fillStyle = "rgba(0,0,0,0.1)";
+  ctx.fillRect(0, 0, w, h);
 
-      // Vignette
-      const gradient = ctx.createRadialGradient(w / 2, h / 2, h * 0.3, w / 2, h / 2, h * 0.9);
-      gradient.addColorStop(0, "rgba(0,0,0,0)");
-      gradient.addColorStop(1, "rgba(0,0,0,0.6)");
-      ctx.fillStyle = gradient;
-      ctx.fillRect(0, 0, w, h);
-
-      // Scanlines
-      for (let y = 0; y < h; y += 4) {
-        ctx.fillStyle = "rgba(0,0,0,0.04)";
-        ctx.fillRect(0, y, w, 1);
-      }
-
-      const fontBase = Math.min(w, h);
-
-const titleImg = titleImageRef.current;
-if (titleImg) {
-  const imgW = w * 0.7;
-  const imgH = (titleImg.height / titleImg.width) * imgW;
-
-  ctx.drawImage(
-    titleImg,
-    w / 2 - imgW / 2,
-    fontBase * 0.05,
-    imgW,
-    imgH
+  // Vignette
+  const gradient = ctx.createRadialGradient(
+    w / 2,
+    h / 2,
+    h * 0.3,
+    w / 2,
+    h / 2,
+    h * 0.9
   );
-}
+  gradient.addColorStop(0, "rgba(0,0,0,0)");
+  gradient.addColorStop(1, "rgba(0,0,0,0.6)");
+  ctx.fillStyle = gradient;
+  ctx.fillRect(0, 0, w, h);
 
-      // Red underline
-      ctx.strokeStyle = "#cc0000";
-      ctx.lineWidth = fontBase * 0.004;
-      const textW = ctx.measureText("KIDNAPPED").width;
-      ctx.beginPath();
-      ctx.moveTo(w / 2 - textW / 2, fontBase * 0.14 + fontBase * 0.01);
-      ctx.lineTo(w / 2 + textW / 2, fontBase * 0.14 + fontBase * 0.01);
-      ctx.stroke();
+  // Scanlines
+  for (let y = 0; y < h; y += 4) {
+    ctx.fillStyle = "rgba(0,0,0,0.04)";
+    ctx.fillRect(0, y, w, 1);
+  }
 
-      // Bottom text
-      ctx.font = `${fontBase * 0.06}px 'Courier New', monospace`;
-      ctx.fillStyle = "rgba(0,0,0,0.5)";
-      ctx.fillText("I am the kidnapper", w / 2 + 1, h - fontBase * 0.28 + 1);
-      ctx.fillStyle = "#eeeeee";
-      ctx.fillText("I am the kidnapper", w / 2, h - fontBase * 0.28);
+  // 🔥 Optional: Logo only (clean branding)
+  const fontBase = Math.min(w, h);
 
-      // Hashtag
-      ctx.font = `bold ${fontBase * 0.055}px 'Courier New', monospace`;
-      ctx.fillStyle = "rgba(0,0,0,0.5)";
-      ctx.fillText("#Kidnapped", w / 2 + 1, h - fontBase * 0.17 + 1);
-      ctx.fillStyle = "#ffffff";
-      ctx.fillText("#Kidnapped", w / 2, h - fontBase * 0.17);
-
-      // Handle
-      ctx.font = `${fontBase * 0.045}px 'Courier New', monospace`;
-      ctx.fillStyle = "rgba(0,0,0,0.4)";
-      ctx.fillText("@sarath.chandra.k", w / 2 + 1, h - fontBase * 0.09 + 1);
-      ctx.fillStyle = "rgba(255,255,255,0.75)";
-      ctx.fillText("@sarath.chandra.k", w / 2, h - fontBase * 0.09);
-
-      // Tag instruction at bottom
-      ctx.font = `${fontBase * 0.035}px 'Courier New', monospace`;
-      ctx.fillStyle = "rgba(255,255,255,0.5)";
-      ctx.fillText("Tag 2 people who should be kidnapped next", w / 2, h - fontBase * 0.03);
-    };
-
-    // Draw cap overlay if available
-    if (overlayCanvas && overlayCanvas.width > 0) {
-      ctx.drawImage(overlayCanvas, 0, 0, w, h);
-    }
-
-    drawText();
+};
+    drawBranding();
 
     const dataUrl = canvas.toDataURL("image/png");
     setIsCapturing(false);
