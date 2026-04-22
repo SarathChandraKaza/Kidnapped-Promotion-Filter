@@ -138,11 +138,27 @@ export function PreviewPage({ imageDataUrl, onRetake }: PreviewPageProps) {
             marginBottom: "50px",
           }}
         >
-          <img
-            src={imageDataUrl}
-            crossOrigin="anonymous"
-            style={{ width: "100%", display: "block" }}
-          />
+          <div style={{ position: "relative", width: "100%" }}>
+            {/* base image */}
+            <img
+              src={imageDataUrl}
+              crossOrigin="anonymous"
+              style={{ width: "100%", display: "block" }}
+            />
+
+            {/* monkey cap overlay */}
+            <img
+              src="/monkey-cap.svg"
+              style={{
+                position: "absolute",
+                top: "10%",
+                left: "50%",
+                transform: "translateX(-50%) rotate(-4deg)",
+                width: "60%",
+                pointerEvents: "none",
+              }}
+            />
+          </div>
         </div>
 
         {/* IDENTITY */}
@@ -196,7 +212,15 @@ export function PreviewPage({ imageDataUrl, onRetake }: PreviewPageProps) {
         />
 
         <div className="w-full rounded-xl overflow-hidden border border-white/10 mb-6">
-          <img src={imageDataUrl} className="w-full block" />
+          <div className="relative w-full">
+            <img src={imageDataUrl} className="w-full block" />
+
+            <img
+              src="/monkey-cap.svg"
+              className="absolute top-[10%] left-1/2 -translate-x-1/2 w-[60%] pointer-events-none"
+              style={{ transform: "translateX(-50%) rotate(-4deg)" }}
+            />
+          </div>
         </div>
 
         {/* UI identity (smaller version) */}
