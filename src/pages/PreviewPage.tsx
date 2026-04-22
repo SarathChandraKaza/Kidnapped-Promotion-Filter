@@ -41,26 +41,40 @@ export function PreviewPage({ imageDataUrl, onRetake }: PreviewPageProps) {
     };
   }, []);
 
-  const handleDownload = async () => {
-    if (!exportRef.current) return;
+const handleDownload = async () => {
+  if (!exportRef.current) return;
 
-    // ✅ Ensure fonts + layout are fully ready
+  try {
+    // 1. Wait for fonts
     await document.fonts.ready;
-    await new Promise((r) => setTimeout(r, 300));
+
+    // 2. Force wait for images inside the export div to be ready
+    const images = exportRef.current.getElementsByTagName('img');
+    const imagePromises = Array.from(images).map(img => {
+      if (img.complete) return Promise.resolve();
+      return new Promise(resolve => { img.onload = resolve; img.onerror = resolve; });
+    });
+    await Promise.all(imagePromises);
+
+    // 3. Small buffer for the browser to paint
+    await new Promise((r) => setTimeout(r, 400));
 
     const canvas = await html2canvas(exportRef.current, {
       backgroundColor: "#050505",
-      scale: 3,
+      scale: 2, // 3 might be too heavy for some mobile browsers, try 2 first
       useCORS: true,
       allowTaint: false,
-      removeContainer: true,
+      logging: false, // Set to true if you need to debug in console
     });
 
     const link = document.createElement("a");
     link.download = "kidnapped_story.png";
     link.href = canvas.toDataURL("image/png");
     link.click();
-  };
+  } catch (err) {
+    console.error("Export failed:", err);
+  }
+};
 
 
   const handleShare = async () => {
@@ -110,7 +124,7 @@ export function PreviewPage({ imageDataUrl, onRetake }: PreviewPageProps) {
        style={{
   position: "absolute",
   top: 0,
-  left: 0,
+  left: "-9999px",
   width: "1080px",
   height: "1920px",
   background: "#050505",
@@ -119,9 +133,7 @@ export function PreviewPage({ imageDataUrl, onRetake }: PreviewPageProps) {
   padding: "100px 80px",
   boxSizing: "border-box",
   fontFamily: "Courier New, monospace",
-  zIndex: -1,
-  opacity: 0,
-  pointerEvents: "none",
+  zIndex: -1
 }}
       >
         {/* LOGO */}
