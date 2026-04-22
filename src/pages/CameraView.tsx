@@ -391,13 +391,13 @@ if (titleImg) {
         <canvas ref={canvasRef} className="hidden" />
 
         {/* Top: KIDNAPPED text */}
-        <div className="absolute top-0 left-0 right-0 z-20 pt-safe">
-          <div className="flex flex-col items-center pt-6">
+        <div className="absolute top-[-25px] left-0 right-0 z-20 pt-safe">
+          <div className="flex flex-col items-center">
             <img
-  src={`${BASE}kidnapped-title.png`}
-  alt="KIDNAPPED"
-  className="w-[80%] max-w-xs object-contain"
-/>
+              src={`${BASE}kidnapped-title.png`}
+              alt="KIDNAPPED"
+              className="w-[80%] max-w-xs object-contain"
+            />
             <div
               className="h-[2px] bg-red-600 mt-1"
               style={{ width: "85%" }}
@@ -405,45 +405,18 @@ if (titleImg) {
           </div>
         </div>
 
-        {/* Bottom overlay texts */}
-        <div className="absolute bottom-0 left-0 right-0 z-20 pb-safe">
-          <div className="flex flex-col items-center pb-28 gap-1">
-            <span
-              className="text-xl text-white tracking-wider"
-              style={{
-                fontFamily: "'Courier New', monospace",
-                textShadow: "1px 1px 6px rgba(0,0,0,0.9)",
-              }}
-            >
-              I am the kidnapper
-            </span>
-            <span
-              className="text-base font-bold text-white tracking-widest"
-              style={{
-                fontFamily: "'Courier New', monospace",
-                textShadow: "1px 1px 6px rgba(0,0,0,0.9)",
-              }}
-            >
-              #Kidnapped
-            </span>
-            <span
-              className="text-sm text-white/70 tracking-wide"
-              style={{
-                fontFamily: "'Courier New', monospace",
-                textShadow: "1px 1px 4px rgba(0,0,0,0.9)",
-              }}
-            >
-              @sarath.chandra.k
-            </span>
-            <span
-              className="text-xs text-white/50 tracking-wide text-center px-4"
-              style={{ fontFamily: "'Courier New', monospace" }}
-            >
-              Tag 2 people who should be kidnapped next
-            </span>
-          </div>
+        {/* Bottom instruction */}
+        <div className="absolute bottom-28 left-0 right-0 z-20 flex justify-center">
+          <span
+            className="text-sm text-white/80 tracking-wide"
+            style={{
+              fontFamily: "'Courier New', monospace",
+              textShadow: "2px 2px 0px rgba(0,0,0,1)",
+            }}
+          >
+            Tap to capture your photo
+          </span>
         </div>
-
         {/* Vignette overlay */}
         <div className="absolute inset-0 pointer-events-none z-10 bg-[radial-gradient(ellipse_at_center,_transparent_45%,_rgba(0,0,0,0.55)_100%)]" />
 
