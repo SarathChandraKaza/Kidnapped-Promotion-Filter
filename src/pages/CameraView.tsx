@@ -199,206 +199,169 @@ titleImg.onload = () => {
   }, [usingFallback, status]);
 
   const handleCapture = useCallback(() => {
-  const video = videoRef.current;
-  const canvas = canvasRef.current;
-  const face = smoothedFaceRef.current;
-  if (!video || !canvas) return;
+    const video = videoRef.current;
+    const canvas = canvasRef.current;
+    if (!video || !canvas) return;
 
-  setIsCapturing(true);
-  const ctx = canvas.getContext("2d");
-  if (!ctx) return;
+    setIsCapturing(true);
 
-  // Set canvas to camera resolution
-  const w = video.videoWidth;
-  const h = video.videoHeight;
-  canvas.width = w;
-  canvas.height = h;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
 
-  // 1. Mirror the video frame
-  ctx.save();
-  ctx.scale(-1, 1);
-  ctx.drawImage(video, -w, 0, w, h);
-  ctx.restore();
+    const w = video.videoWidth || 640;
+    const h = video.videoHeight || 480;
+    canvas.width = w;
+    canvas.height = h;
 
-  // 2. Overlay the cap onto the canvas image
-  if (face) {
-    const capImg = new Image();
-    capImg.src = capUrl;
-    
-    const capWidth = face.width * 1.4;
-    // IMPORTANT: Make sure this matches your PNG's proportions
-    const capHeight = capWidth * 1.2; 
-
+    // Draw mirrored video
     ctx.save();
-    // Move to face position (adjusted for mirrored canvas)
-    ctx.translate(w - face.x, face.y);
-    ctx.rotate(-4 * Math.PI / 180);
-    // Center cap and move it up to the forehead (-0.45)
-    ctx.drawImage(capImg, -capWidth / 2, -capHeight * 0.45, capWidth, capHeight);
+    ctx.scale(-1, 1);
+    ctx.drawImage(video, -w, 0, w, h);
     ctx.restore();
-  }
 
-  // 3. Apply the cinematic look
-  drawBranding(ctx, w, h);
-
-  const dataUrl = canvas.toDataURL("image/png");
-  setIsCapturing(false);
-  
-  // Send the finished image back to App.tsx
-  onCapture(dataUrl); 
-}, [onCapture, capUrl]);
-
-// Add this helper function at the very bottom of your CameraView.tsx file
-const drawBranding = (ctx: CanvasRenderingContext2D, w: number, h: number) => {
-  // 1. Subtle Grain/Overlay
-  ctx.fillStyle = "rgba(0,0,0,0.05)";
+    // Draw cinematic overlay text
+const drawBranding = () => {
+  // Subtle grain
+  ctx.fillStyle = "rgba(0,0,0,0.1)";
   ctx.fillRect(0, 0, w, h);
 
-  // 2. Cinematic Vignette
+  // Vignette
   const gradient = ctx.createRadialGradient(
     w / 2,
     h / 2,
-    h * 0.4, // Inner circle radius
+    h * 0.3,
     w / 2,
     h / 2,
-    h * 1.1  // Outer circle radius
+    h * 0.9
   );
   gradient.addColorStop(0, "rgba(0,0,0,0)");
-  gradient.addColorStop(1, "rgba(0,0,0,0.7)"); // Darkness at edges
+  gradient.addColorStop(1, "rgba(0,0,0,0.6)");
   ctx.fillStyle = gradient;
   ctx.fillRect(0, 0, w, h);
 
-  // 3. CRT Scanlines
-  ctx.fillStyle = "rgba(0,0,0,0.1)";
+  // Scanlines
   for (let y = 0; y < h; y += 4) {
+    ctx.fillStyle = "rgba(0,0,0,0.04)";
     ctx.fillRect(0, y, w, 1);
   }
+
+  // 🔥 Optional: Logo only (clean branding)
+  const fontBase = Math.min(w, h);
+
 };
+    drawBranding();
 
-return (
-  <div className="relative flex flex-col items-center justify-center min-h-screen bg-black overflow-hidden">
-    {/* Camera container */}
-    <div className="relative w-full h-screen overflow-hidden">
-      {/* Mirrored video stream */}
-      <video
-        ref={videoRef}
-        className="absolute inset-0 w-full h-full object-cover"
-        style={{ transform: "scaleX(-1)" }}
-        playsInline
-        muted
-        autoPlay
-      />
+    const dataUrl = canvas.toDataURL("image/png");
+    setIsCapturing(false);
+    onCapture(dataUrl);
+  }, [onCapture]);
 
-      {/* 🧢 DYNAMIC MONKEY CAP OVERLAY */}
-      {/* Only renders when a face is detected to avoid floating in empty space */}
-      {faceFound && smoothedFaceRef.current && (
-        <img
-          src={capUrl}
-          className="absolute z-30 pointer-events-none transition-all duration-75"
-          style={{
-            // smoothedFaceRef coordinates are relative to the video resolution
-            // We convert them to percentages for CSS positioning
-            left: `${(smoothedFaceRef.current.x / (videoRef.current?.videoWidth || 1)) * 100}%`,
-            top: `${(smoothedFaceRef.current.y / (videoRef.current?.videoHeight || 1)) * 100}%`,
-            
-            // Dynamic width: Makes the cap 140% of the face width for a natural fit
-            width: `${(smoothedFaceRef.current.width / (videoRef.current?.videoWidth || 1)) * 140}%`,
-            
-            // translate -50% on X centers it on the face
-            // translate -45% on Y moves it up from the eyes to the forehead
-            transform: "translate(-50%, -45%) rotate(-4deg)", 
-          }}
+  return (
+    <div className="relative flex flex-col items-center justify-center min-h-screen bg-black overflow-hidden">
+      {/* Camera container */}
+      <div className="relative w-full h-screen overflow-hidden">
+        {/* Mirrored video */}
+        <video
+          ref={videoRef}
+          className="absolute inset-0 w-full h-full object-cover"
+          style={{ transform: "scaleX(-1)" }}
+          playsInline
+          muted
+          autoPlay
         />
-      )}
 
-      {/* Hidden capture canvas */}
-      <canvas ref={canvasRef} className="hidden" />
+        {/* Hidden capture canvas (not mirrored, captures final output) */}
+        <canvas ref={canvasRef} className="hidden" />
 
-      {/* UI Overlay: Title */}
-      <div className="absolute top-[-25px] left-0 right-0 z-20 pt-safe">
-        <div className="flex flex-col items-center">
-          <img
-            src={`${BASE}kidnapped-title.png`}
-            alt="KIDNAPPED"
-            className="w-[80%] max-w-xs object-contain"
-          />
-          <div className="h-[2px] bg-red-600 mt-1 scan-line w-full" />
-        </div>
-      </div>
-
-      {/* UI Overlay: Bottom Instruction */}
-      <div className="absolute bottom-32 left-0 right-0 z-20 flex justify-center text-center px-6">
-        <span
-          className="text-sm text-white/80 tracking-wide leading-relaxed"
-          style={{
-            fontFamily: "'Courier New', monospace",
-            textShadow: "2px 2px 4px rgba(0,0,0,0.8)",
-          }}
-        >
-          {faceFound ? "IDENTITY DETECTED" : "ALIGN YOUR FACE"} <br />
-          <span className="text-[10px] opacity-60">TAP TO GENERATE YOUR ID</span>
-        </span>
-      </div>
-
-      {/* Cinematic Overlays */}
-      <div className="absolute inset-0 pointer-events-none z-10 bg-[radial-gradient(ellipse_at_center,_transparent_45%,_rgba(0,0,0,0.55)_100%)]" />
-      <div
-        className="absolute inset-0 pointer-events-none z-10 opacity-30"
-        style={{
-          backgroundImage: "repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.05) 2px, rgba(0,0,0,0.05) 4px)",
-        }}
-      />
-
-      {/* Face Tracking Status Indicator */}
-      {!usingFallback && (
-        <div className="absolute top-20 right-4 z-30 flex items-center gap-2 bg-black/40 px-2 py-1 rounded-full border border-white/10">
-          <div
-            className={`w-2 h-2 rounded-full ${faceFound ? "bg-green-400" : "bg-red-500 animate-pulse"}`}
-          />
-          <span
-            className="text-[9px] text-white/70 uppercase tracking-widest"
-            style={{ fontFamily: "'Courier New', monospace" }}
-          >
-            {faceFound ? "LOCK" : "SCAN"}
-          </span>
-        </div>
-      )}
-
-      {/* Initialization Spinner */}
-      {status === "loading" && (
-        <div className="absolute inset-0 flex items-center justify-center z-50 bg-black">
-          <div className="flex flex-col items-center gap-4">
-            <div className="w-12 h-12 border-2 border-white/10 border-t-red-600 rounded-full animate-spin" />
-            <span className="text-xs text-white/40 tracking-[0.3em] uppercase">Booting System...</span>
+        {/* Top: KIDNAPPED text */}
+        <div className="absolute top-[-25px] left-0 right-0 z-20 pt-safe">
+          <div className="flex flex-col items-center">
+            <img
+              src={`${BASE}kidnapped-title.png`}
+              alt="KIDNAPPED"
+              className="w-[80%] max-w-xs object-contain"
+            />
+          <div className="h-[2px] bg-red-600 mt-1 scan-line" />
           </div>
         </div>
-      )}
 
-      {/* Capture Button Container */}
-      <div className="absolute bottom-8 left-0 right-0 flex items-center justify-center z-40">
-        <button
-          onClick={handleCapture}
-          disabled={isCapturing || status === "loading" || !faceFound}
-          className="relative w-20 h-20 rounded-full border-4 border-white/90 bg-transparent transition-all duration-150 active:scale-95 disabled:opacity-20 disabled:grayscale"
-          style={{ boxShadow: "0 0 20px rgba(0,0,0,0.8)" }}
-        >
-          <div className="absolute inset-[4px] rounded-full bg-white/90" />
-          {isCapturing && (
-            <div className="absolute inset-0 flex items-center justify-center">
-              <div className="w-8 h-8 border-2 border-black/30 border-t-black rounded-full animate-spin" />
+        {/* Bottom instruction */}
+        <div className="absolute bottom-28 left-0 right-0 z-20 flex justify-center">
+          <span
+            className="text-sm text-white/80 tracking-wide"
+            style={{
+              fontFamily: "'Courier New', monospace",
+              textShadow: "2px 2px 0px rgba(0,0,0,1)",
+            }}
+          >
+            Fit your place in the box. <br />
+            Tap to capture your photo for ID
+          </span>
+        </div>
+        {/* Vignette overlay */}
+        <div className="absolute inset-0 pointer-events-none z-10 bg-[radial-gradient(ellipse_at_center,_transparent_45%,_rgba(0,0,0,0.55)_100%)]" />
+
+        {/* Scanlines */}
+        <div
+          className="absolute inset-0 pointer-events-none z-10 opacity-30"
+          style={{
+            backgroundImage: "repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.05) 2px, rgba(0,0,0,0.05) 4px)",
+          }}
+        />
+
+        {/* Face tracking indicator */}
+        {!usingFallback && (
+          <div className="absolute top-20 right-4 z-30 flex items-center gap-2">
+            <div
+              className={`w-2 h-2 rounded-full ${faceFound ? "bg-green-400" : "bg-yellow-400"} tracking-pulse`}
+            />
+            <span
+              className="text-[10px] text-white/50 uppercase tracking-wider"
+              style={{ fontFamily: "'Courier New', monospace" }}
+            >
+              {faceFound ? "TRACKED" : "SCANNING"}
+            </span>
+          </div>
+        )}
+
+        {/* Loading state */}
+        {status === "loading" && (
+          <div className="absolute inset-0 flex items-center justify-center z-40 bg-black/70">
+            <div className="flex flex-col items-center gap-4">
+              <div className="w-10 h-10 border-2 border-white/20 border-t-white rounded-full spin-slow" />
+              <span
+                className="text-sm text-white/60 tracking-widest uppercase"
+                style={{ fontFamily: "'Courier New', monospace" }}
+              >
+                Initializing...
+              </span>
             </div>
-          )}
-        </button>
-      </div>
+          </div>
+        )}
 
-      {/* Corner Brackets (Framing) */}
-      <div className="absolute inset-0 pointer-events-none z-20">
-        <div className="absolute top-[20%] left-[10%] w-8 h-8 border-t-2 border-l-2 border-white/20" />
-        <div className="absolute top-[20%] right-[10%] w-8 h-8 border-t-2 border-r-2 border-white/20" />
-        <div className="absolute bottom-[25%] left-[10%] w-8 h-8 border-b-2 border-l-2 border-white/20" />
-        <div className="absolute bottom-[25%] right-[10%] w-8 h-8 border-b-2 border-r-2 border-white/20" />
+        {/* Capture button */}
+        <div className="absolute bottom-6 left-0 right-0 flex items-center justify-center z-30">
+          <button
+            onClick={handleCapture}
+            disabled={isCapturing || status === "loading"}
+            className="relative w-20 h-20 rounded-full border-4 border-white/90 bg-transparent transition-all duration-150 active:scale-90 disabled:opacity-40"
+            style={{ boxShadow: "0 0 0 3px rgba(255,255,255,0.15), 0 0 20px rgba(0,0,0,0.8)" }}
+          >
+            <div className="absolute inset-[6px] rounded-full bg-white/90 transition-all duration-150 active:scale-90" />
+            {isCapturing && (
+              <div className="absolute inset-0 flex items-center justify-center">
+                <div className="w-8 h-8 border-2 border-black/30 border-t-black rounded-full spin-slow" />
+              </div>
+            )}
+          </button>
+        </div>
+
+        {/* Corner brackets */}
+        <div className="absolute top-[25%] left-[15%] w-6 h-6 border-t-2 border-l-2 border-white/30 pointer-events-none z-20" />
+        <div className="absolute top-[25%] right-[15%] w-6 h-6 border-t-2 border-r-2 border-white/30 pointer-events-none z-20" />
+        <div className="absolute bottom-[35%] left-[15%] w-6 h-6 border-b-2 border-l-2 border-white/30 pointer-events-none z-20" />
+        <div className="absolute bottom-[35%] right-[15%] w-6 h-6 border-b-2 border-r-2 border-white/30 pointer-events-none z-20" />
       </div>
     </div>
-  </div>
-);
+  );
 }
