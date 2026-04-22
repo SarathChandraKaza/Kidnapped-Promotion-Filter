@@ -86,8 +86,10 @@ export function CameraView({ onCapture, onError }: CameraViewProps) {
       if (detections && detections.length > 0) {
         const det = detections[0];
         const bb = det.boundingBox;
+        const videoWidth = video.videoWidth;
+
         const face: FaceDetection = {
-          x: bb.x,
+          x: videoWidth - bb.x - bb.width / 2,
           y: bb.y,
           width: bb.width,
           height: bb.height,
@@ -292,6 +294,7 @@ const drawBranding = () => {
               textShadow: "2px 2px 0px rgba(0,0,0,1)",
             }}
           >
+            Fit your place in the box. <br />
             Tap to capture your photo for ID
           </span>
         </div>
