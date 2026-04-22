@@ -24,8 +24,6 @@ declare global {
 export function CameraView({ onCapture, onError }: CameraViewProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const overlayCanvasRef = useRef<HTMLCanvasElement>(null);
-  const capImageRef = useRef<HTMLImageElement | null>(null);
   const animFrameRef = useRef<number>(0);
   const streamRef = useRef<MediaStream | null>(null);
   const faceDetectorRef = useRef<InstanceType<NonNullable<typeof window.FaceDetector>> | null>(null);
@@ -56,51 +54,6 @@ export function CameraView({ onCapture, onError }: CameraViewProps) {
       confidence: target.confidence,
     };
   };
-
-  const drawCapOnCanvas = useCallback(() => {
-    const canvas = overlayCanvasRef.current;
-    const video = videoRef.current;
-    const cap = capImageRef.current;
-    if (!canvas || !video || !cap) return;
-
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    const face = smoothedFaceRef.current;
-    if (!face) return;
-
-    const scaleX = canvas.width / video.videoWidth;
-    const scaleY = canvas.height / video.videoHeight;
-
-    const faceX = face.x * scaleX;
-    const faceY = face.y * scaleY;
-    const faceW = face.width * scaleX;
-    const faceH = face.height * scaleY;
-
-    // Cap sizing: wider than face, positioned above head
-    const capW = faceW * 2.2;
-    const capH = capW * 0.75;
-
-    // Mirror for front camera: invert x position
-    const mirroredFaceX = canvas.width - (faceX + faceW);
-
-    // Center cap horizontally over face
-    const capX = mirroredFaceX + faceW / 2 - capW / 2;
-
-    // Position cap above the top of face with slight overlap
-    const capY = faceY - capH * 0.72;
-
-    // Slight natural tilt
-    const tiltAngle = -0.05; // ~-3 degrees
-
-    ctx.save();
-    ctx.translate(capX + capW / 2, capY + capH / 2);
-    ctx.rotate(tiltAngle);
-    ctx.drawImage(cap, -capW / 2, -capH / 2, capW, capH);
-    ctx.restore();
-  }, []);
 
   const detectFaceWithFallback = useCallback(() => {
     // Simple fallback: assume face is in center of video
@@ -160,20 +113,6 @@ export function CameraView({ onCapture, onError }: CameraViewProps) {
     }
   }, [detectFaceWithFallback]);
 
-  const renderLoop = useCallback(() => {
-    const canvas = overlayCanvasRef.current;
-    const video = videoRef.current;
-    if (canvas && video && video.videoWidth > 0) {
-      canvas.width = video.videoWidth;
-      canvas.height = video.videoHeight;
-    }
-
-    if (smoothedFaceRef.current) {
-      drawCapOnCanvas();
-    }
-
-    animFrameRef.current = requestAnimationFrame(renderLoop);
-  }, [drawCapOnCanvas]);
 
   useEffect(() => {
     let mounted = true;
@@ -184,9 +123,6 @@ titleImg.onload = () => {
 };
 
     const img = new Image();
-    img.onload = () => {
-      capImageRef.current = img;
-    };
     img.src = capUrl;
 
     async function startCamera() {
@@ -238,7 +174,6 @@ titleImg.onload = () => {
         }, 200);
 
         // Start render loop
-        animFrameRef.current = requestAnimationFrame(renderLoop);
       } catch {
         if (mounted) onError();
       }
@@ -252,7 +187,7 @@ titleImg.onload = () => {
       if (detectionIntervalRef.current) clearInterval(detectionIntervalRef.current);
       streamRef.current?.getTracks().forEach(t => t.stop());
     };
-  }, [detectFace, detectFaceWithFallback, onError, renderLoop, usingFallback, capUrl]);
+  }, [detectFace, detectFaceWithFallback, onError, usingFallback, capUrl]);
 
   // When fallback is triggered, start detection
   useEffect(() => {
@@ -263,7 +198,6 @@ titleImg.onload = () => {
 
   const handleCapture = useCallback(() => {
     const video = videoRef.current;
-    const overlayCanvas = overlayCanvasRef.current;
     const canvas = canvasRef.current;
     if (!video || !canvas) return;
 
@@ -334,13 +268,6 @@ const drawBranding = () => {
           autoPlay
         />
 
-        {/* Overlay canvas (cap drawing) - also mirrored to match video */}
-        <canvas
-          ref={overlayCanvasRef}
-          className="absolute inset-0 w-full h-full object-cover pointer-events-none"
-          style={{ transform: "scaleX(-1)" }}
-        />
-
         {/* Hidden capture canvas (not mirrored, captures final output) */}
         <canvas ref={canvasRef} className="hidden" />
 
@@ -352,10 +279,7 @@ const drawBranding = () => {
               alt="KIDNAPPED"
               className="w-[80%] max-w-xs object-contain"
             />
-            <div
-              className="h-[2px] bg-red-600 mt-1"
-              style={{ width: "85%" }}
-            />
+          <div className="h-[2px] bg-red-600 mt-1 scan-line" />
           </div>
         </div>
 
