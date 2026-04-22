@@ -19,16 +19,17 @@ const cities = [
   "Kolkata",
 ];
 
+// ✅ Proper ordinal fix
 function getOrdinal(n: number) {
   const s = ["th", "st", "nd", "rd"];
   const v = n % 100;
-
   return n + (s[(v - 20) % 10] || s[v] || s[0]);
 }
 
 export function PreviewPage({ imageDataUrl, onRetake }: PreviewPageProps) {
   const exportRef = useRef<HTMLDivElement>(null);
 
+  // ✅ Stable identity (generated once)
   const identity = useMemo(() => {
     const kidnapperNo = Math.floor(1000 + Math.random() * 9000);
     const batch = Math.floor(50 + Math.random() * 50);
@@ -43,13 +44,16 @@ export function PreviewPage({ imageDataUrl, onRetake }: PreviewPageProps) {
   const handleDownload = async () => {
     if (!exportRef.current) return;
 
-    await new Promise((r) => setTimeout(r, 200));
+    // ✅ Ensure fonts + layout are fully ready
+    await document.fonts.ready;
+    await new Promise((r) => setTimeout(r, 300));
 
     const canvas = await html2canvas(exportRef.current, {
       backgroundColor: "#050505",
       scale: 3,
       useCORS: true,
       allowTaint: false,
+      removeContainer: true,
     });
 
     const link = document.createElement("a");
@@ -76,14 +80,12 @@ export function PreviewPage({ imageDataUrl, onRetake }: PreviewPageProps) {
           padding: "100px 80px",
           boxSizing: "border-box",
           fontFamily: "Courier New, monospace",
+          zIndex: -9999,
         }}
       >
         {/* LOGO */}
         <div style={{ display: "flex", justifyContent: "center", marginBottom: "50px" }}>
-          <img
-            src="/kidnapped-title.png"
-            style={{ width: "600px" }}
-          />
+          <img src="/kidnapped-title.png" style={{ width: "600px" }} />
         </div>
 
         {/* IMAGE */}
@@ -103,33 +105,19 @@ export function PreviewPage({ imageDataUrl, onRetake }: PreviewPageProps) {
           />
         </div>
 
-        {/* TITLE */}
-        <div
-          style={{
-            color: "white",
-            textAlign: "center",
-            fontSize: "46px",
-            letterSpacing: "6px",
-            fontWeight: 700,
-            marginBottom: "70px",
-          }}
-        >
-          I AM A KIDNAPPER
-        </div>
-
         {/* IDENTITY */}
         <h2
           style={{
             color: "rgba(255,255,255,0.8)",
-            fontSize: "11px",
-            letterSpacing: "5px",
+            fontSize: "28px", // ✅ fixed (was too small before export)
+            letterSpacing: "4px",
             textTransform: "uppercase",
             textAlign: "center",
             lineHeight: 1.8,
             display: "flex",
             flexDirection: "column",
             gap: "10px",
-            marginBottom: "12px",
+            marginBottom: "60px",
           }}
         >
           <div>{identity.line1}</div>
@@ -169,23 +157,24 @@ export function PreviewPage({ imageDataUrl, onRetake }: PreviewPageProps) {
           <img src={imageDataUrl} className="w-full block" />
         </div>
 
+        {/* UI identity (smaller version) */}
         <h2
-        style={{
-          color: "rgba(255,255,255,0.8)",
-          fontSize: "11px",
-          letterSpacing: "5px",
-          textTransform: "uppercase",
-          textAlign: "center",
-          lineHeight: 1.8,
-          display: "flex",
-          flexDirection: "column",
-          gap: "10px",
-          marginBottom: "12px",
-        }}
-      >
-        <div>{identity.line1}</div>
-        <div>{identity.line2}</div>
-      </h2>
+          style={{
+            color: "rgba(255,255,255,0.8)",
+            fontSize: "11px",
+            letterSpacing: "5px",
+            textTransform: "uppercase",
+            textAlign: "center",
+            lineHeight: 1.8,
+            display: "flex",
+            flexDirection: "column",
+            gap: "10px",
+            marginBottom: "20px",
+          }}
+        >
+          <div>{identity.line1}</div>
+          <div>{identity.line2}</div>
+        </h2>
 
         {/* Buttons */}
         <div className="w-full space-y-3">
