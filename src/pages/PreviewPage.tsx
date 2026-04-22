@@ -62,6 +62,46 @@ export function PreviewPage({ imageDataUrl, onRetake }: PreviewPageProps) {
     link.click();
   };
 
+
+  const handleShare = async () => {
+  if (!exportRef.current) return;
+
+  try {
+    const canvas = await html2canvas(exportRef.current, {
+      backgroundColor: "#050505",
+      scale: 3, // or 4 if you want extra sharpness
+      useCORS: true,
+      allowTaint: false,
+    });
+
+    const dataUrl = canvas.toDataURL("image/png");
+
+    const res = await fetch(dataUrl);
+    const blob = await res.blob();
+
+    const file = new File([blob], "kidnapped.png", {
+      type: "image/png",
+    });
+
+    if (navigator.canShare?.({ files: [file] })) {
+      await navigator.share({
+        title: "KIDNAPPED",
+        text: "I am the kidnapper",
+        files: [file],
+      });
+    } else {
+      // fallback: download
+      const link = document.createElement("a");
+      link.href = dataUrl;
+      link.download = "kidnapped.png";
+      link.click();
+    }
+  } catch (err) {
+    console.error("Share failed:", err);
+  }
+  
+};
+
   return (
     <div className="relative min-h-screen flex flex-col items-center pt-8 pb-12 px-6 bg-[#0a0a0a]">
 
@@ -197,18 +237,12 @@ export function PreviewPage({ imageDataUrl, onRetake }: PreviewPageProps) {
             </button>
           </div>
 
-          <button
-            onClick={() =>
-              navigator.share?.({
-                title: "KIDNAPPED",
-                text: "I am the kidnapper",
-                url: imageDataUrl,
-              })
-            }
-            className="w-full py-3 bg-white text-black text-xs font-bold tracking-widest"
-          >
-            SHARE STORY
-          </button>
+         <button
+          onClick={handleShare}
+          className="w-full py-3 bg-white text-black text-xs font-bold tracking-widest"
+        >
+          SHARE STORY
+        </button>
 
           <button
             onClick={() => window.open("https://www.youtube.com", "_blank")}
