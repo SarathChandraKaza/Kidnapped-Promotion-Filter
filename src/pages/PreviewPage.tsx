@@ -84,7 +84,7 @@ export function PreviewPage({ imageDataUrl, onRetake }: PreviewPageProps) {
         }}
       >
         {/* LOGO */}
-        <div style={{ display: "flex", justifyContent: "center", marginBottom: "50px" }}>
+        <div style={{ display: "flex", justifyContent: "center", marginBottom: "20px" }}>
           <img src="/kidnapped-title.png" style={{ width: "600px" }} />
         </div>
 
@@ -131,7 +131,7 @@ export function PreviewPage({ imageDataUrl, onRetake }: PreviewPageProps) {
           </div>
 
           <div style={{ color: "white", fontSize: "42px", letterSpacing: "4px", marginBottom: "50px" }}>
-            @__________   @__________
+            @_______________   @_______________
           </div>
 
           <div style={{ color: "#ff3b3b", fontSize: "32px", marginBottom: "20px" }}>
@@ -139,7 +139,9 @@ export function PreviewPage({ imageDataUrl, onRetake }: PreviewPageProps) {
           </div>
 
           <div style={{ color: "rgba(255,255,255,0.4)", fontSize: "26px" }}>
-            @sarath.chandra.k
+            @sarath.chandra.k | @suhas_venigalla2704 | @siddu_yolo | @akhil_flawless |
+            @yeswanth_karthikeya | @samhiiii___ | @shiva_koyyada | @music_mantra.mp3 |
+            @abhi._gfx | @harishparthu123 | @devendardeadpool | @sketch.with.saran
           </div>
         </div>
       </div>
