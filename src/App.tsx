@@ -28,15 +28,15 @@ export default function App() {
     setScreen("camera");
   }, []);
 
-  const handleDownload = useCallback(() => {
-    if (!capturedImage) return;
-    const link = document.createElement("a");
-    link.href = capturedImage;
-    link.download = "kidnapped_selfie.png";
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  }, [capturedImage]);
+  // const handleDownload = useCallback(() => {
+  //   if (!capturedImage) return;
+  //   const link = document.createElement("a");
+  //   link.href = capturedImage;
+  //   link.download = "kidnapped_selfie.png";
+  //   document.body.appendChild(link);
+  //   link.click();
+  //   document.body.removeChild(link);
+  // }, [capturedImage]);
 
   const handleRetry = useCallback(() => {
     setScreen("landing");
@@ -52,7 +52,7 @@ export default function App() {
         <PreviewPage
           imageDataUrl={capturedImage}
           onRetake={handleRetake}
-          onDownload={handleDownload}
+          // onDownload={handleDownload}
         />
       )}
       {screen === "error" && <PermissionError onRetry={handleRetry} />}

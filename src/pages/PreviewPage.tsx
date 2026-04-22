@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useRef, useMemo } from "react";
 import html2canvas from "html2canvas";
 
 interface PreviewPageProps {
@@ -6,32 +6,62 @@ interface PreviewPageProps {
   onRetake: () => void;
 }
 
+const cities = [
+  "Dehradun",
+  "Hyderabad",
+  "Bengaluru",
+  "Lucknow",
+  "Bhopal",
+  "Chandigarh",
+  "Jaipur",
+  "Pune",
+  "Ahmedabad",
+  "Kolkata",
+];
+
+function getOrdinal(n: number) {
+  const s = ["th", "st", "nd", "rd"];
+  const v = n % 100;
+
+  return n + (s[(v - 20) % 10] || s[v] || s[0]);
+}
+
 export function PreviewPage({ imageDataUrl, onRetake }: PreviewPageProps) {
   const exportRef = useRef<HTMLDivElement>(null);
 
-  const handleDownload = async () => {
-      if (!exportRef.current) return;
+  const identity = useMemo(() => {
+    const kidnapperNo = Math.floor(1000 + Math.random() * 9000);
+    const batch = Math.floor(50 + Math.random() * 50);
+    const city = cities[Math.floor(Math.random() * cities.length)];
 
-      // wait for layout + images
-      await new Promise((r) => setTimeout(r, 300));
-
-      const canvas = await html2canvas(exportRef.current, {
-        backgroundColor: "#0a0a0a",
-        scale: 3,
-        useCORS: true,
-        allowTaint: false,
-      });
-
-      const link = document.createElement("a");
-      link.download = "kidnapped_story.png";
-      link.href = canvas.toDataURL("image/png");
-      link.click();
+    return {
+      line1: `Kidnapper No. ${kidnapperNo}`,
+      line2: `${getOrdinal(batch)} Batch, Trained at ${city}`,
     };
+  }, []);
+
+  const handleDownload = async () => {
+    if (!exportRef.current) return;
+
+    await new Promise((r) => setTimeout(r, 200));
+
+    const canvas = await html2canvas(exportRef.current, {
+      backgroundColor: "#050505",
+      scale: 3,
+      useCORS: true,
+      allowTaint: false,
+    });
+
+    const link = document.createElement("a");
+    link.download = "kidnapped_story.png";
+    link.href = canvas.toDataURL("image/png");
+    link.click();
+  };
 
   return (
-    <div className="relative min-h-screen bg-[#0a0a0a] flex flex-col items-center pt-10">
+    <div className="relative min-h-screen flex flex-col items-center pt-8 pb-12 px-6 bg-[#0a0a0a]">
 
-      {/* 🔥 HIDDEN EXPORT (9:16 STORY) */}
+      {/* ================= EXPORT CANVAS ================= */}
       <div
         ref={exportRef}
         style={{
@@ -40,126 +70,158 @@ export function PreviewPage({ imageDataUrl, onRetake }: PreviewPageProps) {
           left: "-9999px",
           width: "1080px",
           height: "1920px",
-          background: "#0a0a0a",
+          background: "#050505",
           display: "flex",
           flexDirection: "column",
-          alignItems: "center",
-          justifyContent: "flex-start",
-          padding: "60px 40px",
-          visibility: "visible",
+          padding: "100px 80px",
+          boxSizing: "border-box",
+          fontFamily: "Courier New, monospace",
         }}
       >
-        {/* Logo */}
-        <img
-          src="/kidnapped-title.png"
-          style={{
-            width: "70%",
-            maxWidth: "500px",
-            marginBottom: "20px",
-          }}
-        />
-
-        {/* Image */}
-        <img
-          src={imageDataUrl}
-            crossOrigin="anonymous"
-          style={{
-            width: "100%",
-            border: "2px solid rgba(255,255,255,0.1)",
-            marginBottom: "20px",
-          }}
-        />
-
-        {/* Text */}
-        <div
-          style={{
-            color: "white",
-            fontFamily: "Courier New, monospace",
-            letterSpacing: "4px",
-            fontSize: "32px",
-            marginBottom: "40px",
-            textAlign: "center",
-          }}
-        >
-          I AM THE KIDNAPPER
+        {/* LOGO */}
+        <div style={{ display: "flex", justifyContent: "center", marginBottom: "50px" }}>
+          <img
+            src="/kidnapped-title.png"
+            style={{ width: "600px" }}
+          />
         </div>
 
-        {/* Footer */}
+        {/* IMAGE */}
+        <div
+          style={{
+            width: "100%",
+            borderRadius: "24px",
+            overflow: "hidden",
+            border: "1px solid rgba(255,255,255,0.15)",
+            marginBottom: "50px",
+          }}
+        >
+          <img
+            src={imageDataUrl}
+            crossOrigin="anonymous"
+            style={{ width: "100%", display: "block" }}
+          />
+        </div>
+
+        {/* TITLE */}
         <div
           style={{
             color: "white",
-            fontFamily: "Courier New, monospace",
-            letterSpacing: "3px",
-            fontSize: "28px",
-            marginBottom: "40px",
             textAlign: "center",
-            lineHeight: "1.6",
-            whiteSpace: "pre-line",
+            fontSize: "46px",
+            letterSpacing: "6px",
+            fontWeight: 700,
+            marginBottom: "70px",
           }}
         >
-          Tag two friends who should be KIDNAPPED next{"\n"}
-          {"\n"}
-          @__________   @__________{"\n"}
-          {"\n"}
-          #kidnappedshortfilm{"\n"}
-          {"\n"}
-          sarath.chandra.k
+          I AM A KIDNAPPER
+        </div>
+
+        {/* IDENTITY */}
+        <h2
+          style={{
+            color: "rgba(255,255,255,0.8)",
+            fontSize: "11px",
+            letterSpacing: "5px",
+            textTransform: "uppercase",
+            textAlign: "center",
+            lineHeight: 1.8,
+            display: "flex",
+            flexDirection: "column",
+            gap: "10px",
+            marginBottom: "12px",
+          }}
+        >
+          <div>{identity.line1}</div>
+          <div>{identity.line2}</div>
+        </h2>
+
+        {/* CTA SECTION */}
+        <div style={{ textAlign: "center", marginTop: "60px" }}>
+          <div style={{ color: "rgba(255,255,255,0.7)", fontSize: "28px", marginBottom: "40px" }}>
+            Tag two friends who should be kidnapped next
+          </div>
+
+          <div style={{ color: "white", fontSize: "42px", letterSpacing: "4px", marginBottom: "50px" }}>
+            @__________   @__________
+          </div>
+
+          <div style={{ color: "#ff3b3b", fontSize: "32px", marginBottom: "20px" }}>
+            #KIDNAPPEDSHORTFILM
+          </div>
+
+          <div style={{ color: "rgba(255,255,255,0.4)", fontSize: "26px" }}>
+            @sarath.chandra.k
+          </div>
         </div>
       </div>
 
-      {/* 🔥 VISIBLE UI (unchanged look) */}
-      <div className="flex flex-col items-center w-full max-w-sm px-6">
+      {/* ================= UI PREVIEW ================= */}
+      <div className="w-full max-w-[340px] flex flex-col items-center">
 
         <img
           src="/kidnapped-title.png"
-          className="w-[70%] max-w-[220px] mb-1"
+          className="w-48 mb-8 opacity-90"
+          alt="Logo"
         />
 
-        <div className="w-full mb-1 -mt-3">
-          <img src={imageDataUrl} className="w-full" />
+        <div className="w-full rounded-xl overflow-hidden border border-white/10 mb-6">
+          <img src={imageDataUrl} className="w-full block" />
         </div>
 
-        <span className="text-white tracking-widest mb-4 text-sm">
-          I AM THE KIDNAPPER
-        </span>
+        <h2
+        style={{
+          color: "rgba(255,255,255,0.8)",
+          fontSize: "11px",
+          letterSpacing: "5px",
+          textTransform: "uppercase",
+          textAlign: "center",
+          lineHeight: 1.8,
+          display: "flex",
+          flexDirection: "column",
+          gap: "10px",
+          marginBottom: "12px",
+        }}
+      >
+        <div>{identity.line1}</div>
+        <div>{identity.line2}</div>
+      </h2>
 
         {/* Buttons */}
-        <div className="flex flex-col gap-3 w-full">
+        <div className="w-full space-y-3">
 
           <div className="flex gap-3">
             <button
               onClick={onRetake}
-              className="flex-1 py-3 border border-white text-white text-xs"
+              className="flex-1 py-3 border border-white/20 text-white text-xs tracking-widest"
             >
               RETAKE
             </button>
 
             <button
               onClick={handleDownload}
-              className="flex-1 py-3 border border-white text-white text-xs"
+              className="flex-1 py-3 border border-white/20 text-white text-xs tracking-widest"
             >
               DOWNLOAD
             </button>
           </div>
 
           <button
-            onClick={() => {
-              if (navigator.share) {
-                navigator.share({
-                  title: "KIDNAPPED",
-                  text: "I am the kidnapper",
-                  url: imageDataUrl,
-                });
-              }
-            }}
-            className="w-full py-3 bg-white text-black text-xs"
+            onClick={() =>
+              navigator.share?.({
+                title: "KIDNAPPED",
+                text: "I am the kidnapper",
+                url: imageDataUrl,
+              })
+            }
+            className="w-full py-3 bg-white text-black text-xs font-bold tracking-widest"
           >
-            SHARE IMAGE
+            SHARE STORY
           </button>
 
           <button
             onClick={() => window.open("https://www.youtube.com", "_blank")}
-            className="w-full py-3 border border-red-500 text-red-400 text-xs"
+            className="w-full py-3 border border-red-500 text-red-400 text-xs tracking-widest"
           >
             WATCH SHORT FILM
           </button>

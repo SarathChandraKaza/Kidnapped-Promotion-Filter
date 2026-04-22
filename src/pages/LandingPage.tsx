@@ -84,7 +84,7 @@ export function LandingPage({ onStart }: LandingPageProps) {
           className="text-[14px] tracking-[0.2em] text-white/70 uppercase mb-5"
           style={{ fontFamily: "'Courier New', monospace" }}
         >
-          You have been selected
+          You have been shortlisted
         </p>
 
         <p
@@ -94,7 +94,7 @@ export function LandingPage({ onStart }: LandingPageProps) {
           textShadow: "0 0 20px rgba(255,255,255,0.3)",
           }}
           >
-          Become the Kidnapper
+          Become A Kidnapper
         </p>
 
         
@@ -106,7 +106,7 @@ export function LandingPage({ onStart }: LandingPageProps) {
           data-text="ACCEPT"
           style={{ fontFamily: "'Courier New', monospace" }}
         >
-          ACCEPT
+          ENROLL
         </button>
 
         {/* Small instruction */}
