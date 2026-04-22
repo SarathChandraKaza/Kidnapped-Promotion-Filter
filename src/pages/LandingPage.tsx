@@ -62,17 +62,17 @@ export function LandingPage({ onStart }: LandingPageProps) {
         {/* Main title */}
        <div className="mb-6 flex justify-center">
           <img
-            src="/kidnapped-title.png"
-            alt="KIDNAPPED"
-            className={`w-[80%] max-w-[260px] object-contain ${
-              glitchActive ? "glitch-img" : ""
-            }`}
-            style={{
-              filter: glitchActive
-                ? "drop-shadow(3px 0 red) drop-shadow(-3px 0 cyan)"
-                : "drop-shadow(0 0 20px rgba(255,255,255,0.2))",
-            }}
-          />
+  src={`${import.meta.env.BASE_URL}kidnapped-title.png`}
+  alt="KIDNAPPED"
+  className={`w-[80%] max-w-[260px] object-contain ${
+    glitchActive ? "glitch-img" : ""
+  }`}
+  style={{
+    filter: glitchActive
+      ? "drop-shadow(3px 0 red) drop-shadow(-3px 0 cyan)"
+      : "drop-shadow(0 0 20px rgba(255,255,255,0.2))",
+  }}
+/>
         </div>
 
         {/* Divider */}
