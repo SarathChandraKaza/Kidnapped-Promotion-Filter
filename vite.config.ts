@@ -4,6 +4,7 @@ import tailwindcss from "@tailwindcss/vite";
 import path from "path";
 
 export default defineConfig({
+  base: "/Kidnapped-Promotion-Filter/",   // 👈 ADD THIS
   plugins: [react(), tailwindcss()],
   resolve: {
     alias: {
@@ -13,6 +14,6 @@ export default defineConfig({
   server: {
     host: true,
     port: 5173,
-  allowedHosts: ["suggest-product-encore.ngrok-free.dev"]
+    allowedHosts: ["suggest-product-encore.ngrok-free.dev"],
   },
 });
