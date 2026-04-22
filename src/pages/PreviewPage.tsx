@@ -215,11 +215,16 @@ export function PreviewPage({ imageDataUrl, onRetake }: PreviewPageProps) {
           <div className="relative w-full">
             <img src={imageDataUrl} className="w-full block" />
 
-            <img
-              src="/monkey-cap.svg"
-              className="absolute top-[10%] left-1/2 -translate-x-1/2 w-[60%] pointer-events-none"
-              style={{ transform: "translateX(-50%) rotate(-4deg)" }}
-            />
+                      <img
+            src="/monkey-cap.svg"
+            className="absolute pointer-events-none"
+            style={{ 
+              top: "10%", 
+              left: "20%", // Since width is 60%, (100 - 60) / 2 = 20% to center it
+              width: "60%",
+              transform: "rotate(-4deg)" 
+            }}
+          />
           </div>
         </div>
 
