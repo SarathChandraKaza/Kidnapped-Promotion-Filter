@@ -103,27 +103,22 @@ export function PreviewPage({ imageDataUrl, onRetake }: PreviewPageProps) {
 };
 
   return (
-    <div className="relative min-h-screen flex flex-col items-center pt-8 pb-12 px-6 bg-[#0a0a0a]">
-
-      {/* ================= EXPORT CANVAS ================= */}
-      <div
-        ref={exportRef}
-       style={{
-  position: "fixed",
-  top: 0,
-  left: 0,
-  width: "1080px",
-  height: "1920px",
-  background: "#050505",
-  display: "flex",
-  flexDirection: "column",
-  padding: "100px 80px",
-  boxSizing: "border-box",
-  fontFamily: "Courier New, monospace",
-  zIndex: -1,
-  opacity: 0,
-  pointerEvents: "none",
-}}
+<div style={{ position: "absolute", overflow: "hidden", height: 0, width: 0 }}>
+  <div
+    ref={exportRef}
+    style={{
+      position: "absolute",
+      top: 0,
+      left: "-5000px", // Move it far off-screen instead of just hiding it
+      width: "1080px",
+      height: "1920px",
+      background: "#050505",
+      display: "flex",
+      flexDirection: "column",
+      padding: "100px 80px",
+      boxSizing: "border-box",
+      fontFamily: "Courier New, monospace",
+    }}
       >
         {/* LOGO */}
         <div style={{ display: "flex", justifyContent: "center", marginBottom: "20px" }}>

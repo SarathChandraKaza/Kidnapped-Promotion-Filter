@@ -37,7 +37,7 @@ export function CameraView({ onCapture, onError }: CameraViewProps) {
   const [usingFallback, setUsingFallback] = useState(false);
 
   const BASE = import.meta.env.BASE_URL;
-  const capUrl = `${BASE}monkey-cap-png.png`;
+  const capUrl = `./monkey-cap-png.png`;
 
   const titleImageRef = useRef<HTMLImageElement | null>(null);
 
@@ -119,7 +119,7 @@ export function CameraView({ onCapture, onError }: CameraViewProps) {
   useEffect(() => {
     let mounted = true;
     const titleImg = new Image();
-titleImg.src = `${BASE}kidnapped-title.png`;
+titleImg.src = `./kidnapped-title.png`;
 titleImg.onload = () => {
   titleImageRef.current = titleImg;
 };
@@ -277,7 +277,7 @@ const drawBranding = () => {
         <div className="absolute top-[-25px] left-0 right-0 z-20 pt-safe">
           <div className="flex flex-col items-center">
             <img
-              src={`${BASE}kidnapped-title.png`}
+              src={`./kidnapped-title.png`}
               alt="KIDNAPPED"
               className="w-[80%] max-w-xs object-contain"
             />
