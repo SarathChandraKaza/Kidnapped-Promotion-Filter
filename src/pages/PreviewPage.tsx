@@ -87,13 +87,23 @@ export function PreviewPage({ imageDataUrl, onRetake }: PreviewPageProps) {
         {/* Footer */}
         <div
           style={{
-            color: "rgba(255,255,255,0.6)",
+            color: "white",
             fontFamily: "Courier New, monospace",
             letterSpacing: "3px",
-            fontSize: "20px",
+            fontSize: "28px",
+            marginBottom: "40px",
+            textAlign: "center",
+            lineHeight: "1.6",
+            whiteSpace: "pre-line",
           }}
         >
-          YOUR DATA
+          Tag two friends who should be KIDNAPPED next{"\n"}
+          {"\n"}
+          @__________   @__________{"\n"}
+          {"\n"}
+          #kidnappedshortfilm{"\n"}
+          {"\n"}
+          sarath.chandra.k
         </div>
       </div>
 
