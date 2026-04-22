@@ -60,78 +60,53 @@ export function LandingPage({ onStart }: LandingPageProps) {
         </div>
 
         {/* Main title */}
-        <div className="mb-2">
-          <h1
-            className={`text-[56px] font-bold tracking-[0.15em] text-white uppercase leading-none ${
-              glitchActive ? "glitch-text" : ""
+       <div className="mb-6 flex justify-center">
+          <img
+            src="/kidnapped-title.png"
+            alt="KIDNAPPED"
+            className={`w-[80%] max-w-[260px] object-contain ${
+              glitchActive ? "glitch-img" : ""
             }`}
             style={{
-              fontFamily: "'Special Elite', 'Courier New', monospace",
-              textShadow: glitchActive
-                ? "3px 0 #ff0000, -3px 0 #00ffff"
-                : "0 0 30px rgba(255,255,255,0.15)",
+              filter: glitchActive
+                ? "drop-shadow(3px 0 red) drop-shadow(-3px 0 cyan)"
+                : "drop-shadow(0 0 20px rgba(255,255,255,0.2))",
             }}
-          >
-            KID
-          </h1>
-          <h1
-            className={`text-[56px] font-bold tracking-[0.15em] text-white uppercase leading-none ${
-              glitchActive ? "glitch-text" : ""
-            }`}
-            style={{
-              fontFamily: "'Special Elite', 'Courier New', monospace",
-              textShadow: glitchActive
-                ? "-3px 0 #ff0000, 3px 0 #00ffff"
-                : "0 0 30px rgba(255,255,255,0.15)",
-              animationDelay: "0.05s",
-            }}
-          >
-            NAP
-          </h1>
-          <h1
-            className={`text-[56px] font-bold tracking-[0.15em] text-white uppercase leading-none ${
-              glitchActive ? "glitch-text" : ""
-            }`}
-            style={{
-              fontFamily: "'Special Elite', 'Courier New', monospace",
-              textShadow: glitchActive
-                ? "3px 0 #ff0000, -3px 0 #00ffff"
-                : "0 0 30px rgba(255,255,255,0.15)",
-              animationDelay: "0.1s",
-            }}
-          >
-            PED
-          </h1>
+          />
         </div>
 
         {/* Divider */}
         <div className="w-full h-px bg-white opacity-20 mb-8" />
 
         {/* Tagline */}
+
         <p
-          className="text-[15px] tracking-[0.3em] text-white/70 uppercase mb-2"
+          className="text-[14px] tracking-[0.2em] text-white/70 uppercase mb-5"
           style={{ fontFamily: "'Courier New', monospace" }}
         >
-          You have been
-        </p>
-        <p
-          className="text-[22px] tracking-[0.2em] text-white font-bold uppercase mb-12"
-          style={{
-            fontFamily: "'Special Elite', 'Courier New', monospace",
-            textShadow: "0 0 20px rgba(255,255,255,0.3)",
-          }}
-        >
-          SELECTED.
+          You have been selected
         </p>
 
-        {/* Start button */}
+        <p
+          className="text-[14px] tracking-[0.2em] text-white font-bold uppercase mb-5"
+          style={{
+          fontFamily: "'Special Elite', 'Courier New', monospace",
+          textShadow: "0 0 20px rgba(255,255,255,0.3)",
+          }}
+          >
+          Become the Kidnapper
+        </p>
+
+        
+
+        {/* Accept button */}
         <button
           onClick={onStart}
           className="btn-glitch pulse-border relative px-12 py-4 border border-white/80 text-white tracking-[0.3em] uppercase text-sm font-bold transition-all duration-200 hover:bg-white hover:text-black active:scale-95"
-          data-text="START"
+          data-text="ACCEPT"
           style={{ fontFamily: "'Courier New', monospace" }}
         >
-          START
+          ACCEPT
         </button>
 
         {/* Small instruction */}
@@ -139,7 +114,7 @@ export function LandingPage({ onStart }: LandingPageProps) {
           className="mt-6 text-[10px] tracking-[0.2em] text-white/30 uppercase"
           style={{ fontFamily: "'Courier New', monospace" }}
         >
-          camera access required
+          camera and location access required
         </p>
       </div>
 
