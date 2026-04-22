@@ -102,14 +102,13 @@ export function PreviewPage({ imageDataUrl, onRetake }: PreviewPageProps) {
   
 };
 
-  return (
-    <div className="relative min-h-screen flex flex-col items-center pt-8 pb-12 px-6 bg-[#0a0a0a]">
-
+ return (
+  <div className="relative h-screen flex flex-col items-center pt-8 pb-12 px-6 bg-[#0a0a0a] overflow-y-auto">
       {/* ================= EXPORT CANVAS ================= */}
       <div
         ref={exportRef}
        style={{
-  position: "fixed",
+  position: "absolute",
   top: 0,
   left: 0,
   width: "1080px",

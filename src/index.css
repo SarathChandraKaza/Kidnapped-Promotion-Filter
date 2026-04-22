@@ -60,6 +60,13 @@
   animation: scanMove 1.2s ease-in-out infinite;
 }
 
+html, body {
+  height: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch; /* smooth iOS scroll */
+}
+
 /* Grain overlay effect */
 .grain::after {
   content: '';
