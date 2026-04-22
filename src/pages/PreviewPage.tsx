@@ -148,7 +148,7 @@ export function PreviewPage({ imageDataUrl, onRetake }: PreviewPageProps) {
 
             {/* monkey cap overlay */}
             <img
-              src="/monkey-cap.svg"
+              src="/monkey-cap-png.png"
               style={{
                 position: "absolute",
                 top: "10%",
@@ -216,7 +216,7 @@ export function PreviewPage({ imageDataUrl, onRetake }: PreviewPageProps) {
             <img src={imageDataUrl} className="w-full block" />
 
                       <img
-            src="/monkey-cap.svg"
+            src="/monkey-cap-png.png"
             className="absolute pointer-events-none"
             style={{ 
               top: "10%", 

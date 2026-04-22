@@ -37,7 +37,7 @@ export function CameraView({ onCapture, onError }: CameraViewProps) {
   const [usingFallback, setUsingFallback] = useState(false);
 
   const BASE = import.meta.env.BASE_URL;
-  const capUrl = `${BASE}monkey-cap.svg`;
+  const capUrl = `${BASE}monkey-cap-png.png`;
 
   const titleImageRef = useRef<HTMLImageElement | null>(null);
 
