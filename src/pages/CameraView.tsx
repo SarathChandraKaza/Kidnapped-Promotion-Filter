@@ -89,7 +89,7 @@ export function CameraView({ onCapture, onError }: CameraViewProps) {
         const videoWidth = video.videoWidth;
 
         const face: FaceDetection = {
-          x: videoWidth - bb.x - bb.width / 2,
+          x: bb.x + bb.width / 2,
           y: bb.y,
           width: bb.width,
           height: bb.height,
