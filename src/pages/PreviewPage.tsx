@@ -108,24 +108,26 @@ export function PreviewPage({ imageDataUrl, onRetake }: PreviewPageProps) {
       {/* ================= EXPORT CANVAS ================= */}
       <div
         ref={exportRef}
-        style={{
-          position: "fixed",
-          top: 0,
-          left: "-9999px",
-          width: "1080px",
-          height: "1920px",
-          background: "#050505",
-          display: "flex",
-          flexDirection: "column",
-          padding: "100px 80px",
-          boxSizing: "border-box",
-          fontFamily: "Courier New, monospace",
-          zIndex: -9999,
-        }}
+       style={{
+  position: "fixed",
+  top: 0,
+  left: 0,
+  width: "1080px",
+  height: "1920px",
+  background: "#050505",
+  display: "flex",
+  flexDirection: "column",
+  padding: "100px 80px",
+  boxSizing: "border-box",
+  fontFamily: "Courier New, monospace",
+  zIndex: -1,
+  opacity: 0,
+  pointerEvents: "none",
+}}
       >
         {/* LOGO */}
         <div style={{ display: "flex", justifyContent: "center", marginBottom: "20px" }}>
-          <img src="/kidnapped-title.png" style={{ width: "600px" }} />
+          <img src="./kidnapped-title.png" style={{ width: "600px" }} />
         </div>
 
         {/* IMAGE */}
@@ -148,7 +150,7 @@ export function PreviewPage({ imageDataUrl, onRetake }: PreviewPageProps) {
 
             {/* monkey cap overlay */}
             <img
-              src="/monkey-cap-png.png"
+              src="./monkey-cap-png.png"
               style={{
                 position: "absolute",
                 top: "10%",
@@ -206,7 +208,7 @@ export function PreviewPage({ imageDataUrl, onRetake }: PreviewPageProps) {
       <div className="w-full max-w-[340px] flex flex-col items-center">
 
         <img
-          src="/kidnapped-title.png"
+          src="./kidnapped-title.png"
           className="w-48 mb-8 opacity-90"
           alt="Logo"
         />
@@ -216,7 +218,7 @@ export function PreviewPage({ imageDataUrl, onRetake }: PreviewPageProps) {
             <img src={imageDataUrl} className="w-full block" />
 
                       <img
-            src="/monkey-cap-png.png"
+            src="./monkey-cap-png.png"
             className="absolute pointer-events-none"
             style={{ 
               top: "10%", 
