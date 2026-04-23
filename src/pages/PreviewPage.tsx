@@ -162,32 +162,22 @@ const buildCanvas = async (): Promise<HTMLCanvasElement> => {
   roundRect(L.pad, y, innerW, photoH, 24);
   ctx.stroke();
 
-// CAP (COVER FULL PHOTO AREA)
 // ======================
-    const capSize = Math.max(innerW, photoH); // cover logic
+// CAP (DIRECT FIT - 3:4 MATCHED)
+// ======================
 
     ctx.save();
 
-    // center over photo
-    ctx.translate(
-      L.pad + innerW / 2,
-      y + photoH / 2
-    );
+    // move to photo position
+    ctx.translate(L.pad, y);
 
+    // optional slight rotation
     ctx.rotate((-4 * Math.PI) / 180);
 
-    // draw as "cover"
-    ctx.drawImage(
-      capImg,
-      -capSize / 2,
-      -capSize / 2,
-      capSize,
-      capSize
-    );
+    // draw cap exactly into photo frame
+    ctx.drawImage(capImg, 0, 0, innerW, photoH);
 
     ctx.restore();
-
-  y += photoH + L.imageGap;
 
   // ======================
   // IDENTITY
