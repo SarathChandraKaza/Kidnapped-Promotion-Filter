@@ -86,18 +86,15 @@ export function PreviewPage({ imageDataUrl, onRetake }: PreviewPageProps) {
     //   "@yeswanth_karthikeya | @samhiiii___ | @shiva_koyyada | @music_mantra.mp3 | " +
     //   "@abhi._gfx | @harishparthu123 | @devendardeadpool | @sketch.with.saran";
 
-        const credits = "";
-
     const mCanvas = document.createElement("canvas");
     mCanvas.width = W;
     mCanvas.height = 10;
     const mCtx = mCanvas.getContext("2d")!;
     mCtx.font = `${FS.credits}px "Courier New", monospace`;
-    const creditLines = wrapLines(mCtx, credits, innerW);
     const creditsLineH = Math.round(FS.credits * 1.6);
 
     const totalH =
-      100 +
+      30 +
       titleH +
       40 +
       photoH +
@@ -110,9 +107,7 @@ export function PreviewPage({ imageDataUrl, onRetake }: PreviewPageProps) {
       FS.handles +
       70 +
       FS.hashtag +
-      40 +
-      creditLines.length * creditsLineH +
-      120;
+      40;
 
     const canvas = document.createElement("canvas");
     canvas.width = W;
@@ -123,10 +118,10 @@ export function PreviewPage({ imageDataUrl, onRetake }: PreviewPageProps) {
     ctx.fillRect(0, 0, W, canvas.height);
     ctx.textAlign = "center";
 
-    let y = 100;
+    let y = 10;
 
     ctx.drawImage(titleImg, (W - titleDrawW) / 2, y, titleDrawW, titleH);
-    y += titleH + 40;
+    y += titleH + 10;
 
     const roundRect = (x: number, ry: number, w: number, h: number, r: number) => {
       ctx.beginPath();
@@ -187,10 +182,6 @@ export function PreviewPage({ imageDataUrl, onRetake }: PreviewPageProps) {
 
     ctx.font = `${FS.credits}px "Courier New", monospace`;
     ctx.fillStyle = "rgba(255,255,255,0.4)";
-    for (const line of creditLines) {
-      ctx.fillText(line, W / 2, y);
-      y += creditsLineH;
-    }
 
     return canvas;
   };
