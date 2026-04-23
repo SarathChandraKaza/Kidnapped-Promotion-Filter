@@ -1,5 +1,4 @@
-import { useRef, useMemo } from "react";
-import html2canvas from "html2canvas";
+import { useMemo } from "react";
 
 interface PreviewPageProps {
   imageDataUrl: string;
@@ -19,210 +18,230 @@ const cities = [
   "Kolkata",
 ];
 
-// ✅ Proper ordinal fix
 function getOrdinal(n: number) {
   const s = ["th", "st", "nd", "rd"];
   const v = n % 100;
   return n + (s[(v - 20) % 10] || s[v] || s[0]);
 }
 
-export function PreviewPage({ imageDataUrl, onRetake }: PreviewPageProps) {
-  const exportRef = useRef<HTMLDivElement>(null);
+function loadImage(src: string): Promise<HTMLImageElement> {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.crossOrigin = "anonymous";
+    img.onload = () => resolve(img);
+    img.onerror = reject;
+    img.src = src;
+  });
+}
 
-  // ✅ Stable identity (generated once)
+export function PreviewPage({ imageDataUrl, onRetake }: PreviewPageProps) {
   const identity = useMemo(() => {
     const kidnapperNo = Math.floor(1000 + Math.random() * 9000);
     const batch = Math.floor(50 + Math.random() * 50);
     const city = cities[Math.floor(Math.random() * cities.length)];
-
     return {
       line1: `Kidnapper No. ${kidnapperNo}`,
       line2: `${getOrdinal(batch)} Batch, Trained at ${city}`,
     };
   }, []);
 
-const handleDownload = async () => {
-  if (!exportRef.current) return;
-
-  try {
-    // 1. Wait for fonts
+  // ─── Core canvas renderer (no DOM, no html2canvas, no viewport limits) ──
+  const buildCanvas = async (): Promise<HTMLCanvasElement> => {
     await document.fonts.ready;
 
-    // 2. Force wait for images inside the export div to be ready
-    const images = exportRef.current.getElementsByTagName('img');
-    const imagePromises = Array.from(images).map(img => {
-      if (img.complete) return Promise.resolve();
-      return new Promise(resolve => { img.onload = resolve; img.onerror = resolve; });
-    });
-    await Promise.all(imagePromises);
+    const [photoImg, titleImg, capImg] = await Promise.all([
+      loadImage(imageDataUrl),
+      loadImage("./kidnapped-title.png"),
+      loadImage("./monkey-cap-png.png"),
+    ]);
 
-    // 3. Small buffer for the browser to paint
-    await new Promise((r) => setTimeout(r, 400));
+    const W = 1080;
+    const PAD = 80;
+    const innerW = W - PAD * 2;
 
-    const canvas = await html2canvas(exportRef.current, {
-      backgroundColor: "#050505",
-      scale: 2, // 3 might be too heavy for some mobile browsers, try 2 first
-      useCORS: true,
-      allowTaint: false,
-      logging: false, // Set to true if you need to debug in console
-    });
+    // Calculate heights from actual image aspect ratios
+    const titleDrawW = 600;
+    const titleH = Math.round((titleImg.height / titleImg.width) * titleDrawW);
+    const photoH = Math.round((photoImg.height / photoImg.width) * innerW);
 
-    const link = document.createElement("a");
-    link.download = "kidnapped_story.png";
-    link.href = canvas.toDataURL("image/png");
-    link.click();
-  } catch (err) {
-    console.error("Export failed:", err);
-  }
-};
+    const identityFontSize = 32;
+    const identityLineH = identityFontSize * 2;
+    const identityBlockH = identityLineH * 2 + 20;
 
+    const ctaTaglineSize = 32;
+    const ctaHandlesSize = 48;
+    const ctaHashtagSize = 38;
+    const ctaCreditsSize = 28;
 
-  const handleShare = async () => {
-  if (!exportRef.current) return;
+    // Estimate total height so canvas is tall enough
+    const totalH =
+      100 +
+      titleH + 30 +
+      photoH + 60 +
+      identityBlockH + 80 +
+      ctaTaglineSize * 1.6 + 50 +
+      ctaHandlesSize * 1.6 + 60 +
+      ctaHashtagSize * 1.6 + 30 +
+      ctaCreditsSize * 6 +   // generous credits estimate
+      120;
 
-  try {
-    const canvas = await html2canvas(exportRef.current, {
-      backgroundColor: "#050505",
-      scale: 3, // or 4 if you want extra sharpness
-      useCORS: true,
-      allowTaint: false,
-    });
+    const canvas = document.createElement("canvas");
+    canvas.width = W;
+    canvas.height = Math.ceil(totalH);
 
-    const dataUrl = canvas.toDataURL("image/png");
+    const ctx = canvas.getContext("2d")!;
 
-    const res = await fetch(dataUrl);
-    const blob = await res.blob();
+    // Background
+    ctx.fillStyle = "#050505";
+    ctx.fillRect(0, 0, W, canvas.height);
 
-    const file = new File([blob], "kidnapped.png", {
-      type: "image/png",
-    });
+    let y = 100;
 
-    if (navigator.canShare?.({ files: [file] })) {
-      await navigator.share({
-        title: "KIDNAPPED",
-        text: "I am the kidnapper",
-        files: [file],
-      });
-    } else {
-      // fallback: download
-      const link = document.createElement("a");
-      link.href = dataUrl;
-      link.download = "kidnapped.png";
-      link.click();
+    // ── Title logo ────────────────────────────────────────────────────────
+    ctx.drawImage(titleImg, (W - titleDrawW) / 2, y, titleDrawW, titleH);
+    y += titleH + 30;
+
+    // ── Photo with rounded rect clip ──────────────────────────────────────
+    const photoX = PAD;
+    const photoY = y;
+    const radius = 24;
+
+    const roundRect = (x: number, y: number, w: number, h: number, r: number) => {
+      ctx.beginPath();
+      ctx.moveTo(x + r, y);
+      ctx.lineTo(x + w - r, y);
+      ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+      ctx.lineTo(x + w, y + h - r);
+      ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+      ctx.lineTo(x + r, y + h);
+      ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+      ctx.lineTo(x, y + r);
+      ctx.quadraticCurveTo(x, y, x + r, y);
+      ctx.closePath();
+    };
+
+    ctx.save();
+    roundRect(photoX, photoY, innerW, photoH, radius);
+    ctx.clip();
+    ctx.drawImage(photoImg, photoX, photoY, innerW, photoH);
+    ctx.restore();
+
+    // Border
+    ctx.strokeStyle = "rgba(255,255,255,0.15)";
+    ctx.lineWidth = 1;
+    roundRect(photoX, photoY, innerW, photoH, radius);
+    ctx.stroke();
+
+    // ── Monkey cap overlay ────────────────────────────────────────────────
+    const capW = innerW * 0.6;
+    const capH = Math.round((capImg.height / capImg.width) * capW);
+    const capCX = PAD + innerW / 2;
+    const capCY = photoY + photoH * 0.10 + capH / 2;
+
+    ctx.save();
+    ctx.translate(capCX, capCY);
+    ctx.rotate((-4 * Math.PI) / 180);
+    ctx.drawImage(capImg, -capW / 2, -capH / 2, capW, capH);
+    ctx.restore();
+
+    y += photoH + 60;
+
+    // ── Identity text ─────────────────────────────────────────────────────
+    ctx.textAlign = "center";
+    ctx.fillStyle = "rgba(255,255,255,0.8)";
+    ctx.font = `${identityFontSize}px "Courier New", monospace`;
+    ctx.fillText(identity.line1.toUpperCase(), W / 2, y + identityFontSize);
+    ctx.fillText(identity.line2.toUpperCase(), W / 2, y + identityFontSize + identityLineH);
+    y += identityBlockH + 80;
+
+    // ── CTA: tagline ──────────────────────────────────────────────────────
+    ctx.font = `${ctaTaglineSize}px "Courier New", monospace`;
+    ctx.fillStyle = "rgba(255,255,255,0.7)";
+    ctx.fillText("Tag two friends who should be kidnapped next", W / 2, y);
+    y += Math.round(ctaTaglineSize * 1.6) + 50;
+
+    // ── CTA: handles ─────────────────────────────────────────────────────
+    ctx.font = `${ctaHandlesSize}px "Courier New", monospace`;
+    ctx.fillStyle = "white";
+    ctx.fillText("@_______________   @_______________", W / 2, y);
+    y += Math.round(ctaHandlesSize * 1.6) + 60;
+
+    // ── CTA: hashtag ──────────────────────────────────────────────────────
+    ctx.font = `bold ${ctaHashtagSize}px "Courier New", monospace`;
+    ctx.fillStyle = "#ff3b3b";
+    ctx.fillText("#KIDNAPPEDSHORTFILM", W / 2, y);
+    y += Math.round(ctaHashtagSize * 1.6) + 30;
+
+    // ── CTA: credits (word-wrapped) ───────────────────────────────────────
+    const credits =
+      "@sarath.chandra.k | @suhas_venigalla2704 | @siddu_yolo | @akhil_flawless | " +
+      "@yeswanth_karthikeya | @samhiiii___ | @shiva_koyyada | @music_mantra.mp3 | " +
+      "@abhi._gfx | @harishparthu123 | @devendardeadpool | @sketch.with.saran";
+
+    ctx.font = `${ctaCreditsSize}px "Courier New", monospace`;
+    ctx.fillStyle = "rgba(255,255,255,0.4)";
+
+    const words = credits.split(" ");
+    let line = "";
+    const lineH = Math.round(ctaCreditsSize * 1.5);
+
+    for (const word of words) {
+      const test = line + word + " ";
+      if (ctx.measureText(test).width > innerW && line !== "") {
+        ctx.fillText(line.trim(), W / 2, y);
+        y += lineH;
+        line = word + " ";
+      } else {
+        line = test;
+      }
     }
-  } catch (err) {
-    console.error("Share failed:", err);
-  }
-  
-};
+    if (line.trim()) ctx.fillText(line.trim(), W / 2, y);
 
- return (
-  <div className="relative h-screen flex flex-col items-center pt-8 pb-12 px-6 bg-[#0a0a0a] overflow-y-auto">
-      {/* ================= EXPORT CANVAS ================= */}
-      <div
-        ref={exportRef}
-       style={{
-  position: "absolute",
-  top: 0,
-  left: "-9999px",
-  width: "1080px",
-  height: "auto",
-  minHeight: "1920px",
-  background: "#050505",
-  display: "flex",
-  flexDirection: "column",
-  padding: "100px 80px",
-  boxSizing: "border-box",
-  fontFamily: "Courier New, monospace",
-  zIndex: -1
-}}
-      >
-        {/* LOGO */}
-        <div style={{ display: "flex", justifyContent: "center", marginBottom: "20px" }}>
-          <img src="./kidnapped-title.png" style={{ width: "600px" }} />
-        </div>
+    return canvas;
+  };
 
-        {/* IMAGE */}
-        <div
-          style={{
-            width: "100%",
-            borderRadius: "24px",
-            overflow: "visible",
-            border: "1px solid rgba(255,255,255,0.15)",
-            marginBottom: "50px",
-            flexShrink: 0,
-          }}
-        >
-          <div style={{ position: "relative", width: "100%", lineHeight: 0 }}>
-            {/* base image — natural aspect ratio preserved */}
-            <img
-              src={imageDataUrl}
-              crossOrigin="anonymous"
-              style={{
-                width: "100%",
-                height: "auto",
-                display: "block",
-                borderRadius: "24px",
-              }}
-            />
+  // ─── Download ────────────────────────────────────────────────────────────
+  const handleDownload = async () => {
+    try {
+      const canvas = await buildCanvas();
+      const link = document.createElement("a");
+      link.download = "kidnapped_story.png";
+      link.href = canvas.toDataURL("image/png");
+      link.click();
+    } catch (err) {
+      console.error("Export failed:", err);
+    }
+  };
 
-            {/* monkey cap overlay */}
-            <img
-              src="./monkey-cap-png.png"
-              style={{
-                position: "absolute",
-                top: "10%",
-                left: "50%",
-                transform: "translateX(-50%) rotate(-4deg)",
-                width: "60%",
-                pointerEvents: "none",
-              }}
-            />
-          </div>
-        </div>
+  // ─── Share ───────────────────────────────────────────────────────────────
+  const handleShare = async () => {
+    try {
+      const canvas = await buildCanvas();
+      const dataUrl = canvas.toDataURL("image/png");
+      const res = await fetch(dataUrl);
+      const blob = await res.blob();
+      const file = new File([blob], "kidnapped.png", { type: "image/png" });
 
-        {/* IDENTITY */}
-        <h2
-          style={{
-            color: "rgba(255,255,255,0.8)",
-            fontSize: "28px", // ✅ fixed (was too small before export)
-            letterSpacing: "4px",
-            textTransform: "uppercase",
-            textAlign: "center",
-            lineHeight: 1.8,
-            display: "flex",
-            flexDirection: "column",
-            gap: "10px",
-            marginBottom: "60px",
-          }}
-        >
-          <div>{identity.line1}</div>
-          <div>{identity.line2}</div>
-        </h2>
+      if (navigator.canShare?.({ files: [file] })) {
+        await navigator.share({
+          title: "KIDNAPPED",
+          text: "I am the kidnapper",
+          files: [file],
+        });
+      } else {
+        const link = document.createElement("a");
+        link.href = dataUrl;
+        link.download = "kidnapped.png";
+        link.click();
+      }
+    } catch (err) {
+      console.error("Share failed:", err);
+    }
+  };
 
-        {/* CTA SECTION */}
-        <div style={{ textAlign: "center", marginTop: "60px" }}>
-          <div style={{ color: "rgba(255,255,255,0.7)", fontSize: "28px", marginBottom: "40px" }}>
-            Tag two friends who should be kidnapped next
-          </div>
-
-          <div style={{ color: "white", fontSize: "42px", letterSpacing: "4px", marginBottom: "50px" }}>
-            @_______________   @_______________
-          </div>
-
-          <div style={{ color: "#ff3b3b", fontSize: "32px", marginBottom: "20px" }}>
-            #KIDNAPPEDSHORTFILM
-          </div>
-
-          <div style={{ color: "rgba(255,255,255,0.4)", fontSize: "26px" }}>
-            @sarath.chandra.k | @suhas_venigalla2704 | @siddu_yolo | @akhil_flawless |
-            @yeswanth_karthikeya | @samhiiii___ | @shiva_koyyada | @music_mantra.mp3 |
-            @abhi._gfx | @harishparthu123 | @devendardeadpool | @sketch.with.saran
-          </div>
-        </div>
-      </div>
-
-      {/* ================= UI PREVIEW ================= */}
+  // ─── UI (unchanged visual) ────────────────────────────────────────────────
+  return (
+    <div className="relative h-screen flex flex-col items-center pt-8 pb-12 px-6 bg-[#0a0a0a] overflow-y-auto">
       <div className="w-full max-w-[340px] flex flex-col items-center">
 
         <img
@@ -234,21 +253,19 @@ const handleDownload = async () => {
         <div className="w-full rounded-xl overflow-hidden border border-white/10 mb-6">
           <div className="relative w-full">
             <img src={imageDataUrl} className="w-full block" />
-
-                      <img
-            src="./monkey-cap-png.png"
-            className="absolute pointer-events-none"
-            style={{ 
-              top: "10%", 
-              left: "20%", // Since width is 60%, (100 - 60) / 2 = 20% to center it
-              width: "60%",
-              transform: "rotate(-4deg)" 
-            }}
-          />
+            <img
+              src="./monkey-cap-png.png"
+              className="absolute pointer-events-none"
+              style={{
+                top: "10%",
+                left: "20%",
+                width: "60%",
+                transform: "rotate(-4deg)",
+              }}
+            />
           </div>
         </div>
 
-        {/* UI identity (smaller version) */}
         <h2
           style={{
             color: "rgba(255,255,255,0.8)",
@@ -267,9 +284,7 @@ const handleDownload = async () => {
           <div>{identity.line2}</div>
         </h2>
 
-        {/* Buttons */}
         <div className="w-full space-y-3">
-
           <div className="flex gap-3">
             <button
               onClick={onRetake}
@@ -277,7 +292,6 @@ const handleDownload = async () => {
             >
               RETAKE
             </button>
-
             <button
               onClick={handleDownload}
               className="flex-1 py-3 border border-white/20 text-white text-xs tracking-widest"
@@ -286,12 +300,12 @@ const handleDownload = async () => {
             </button>
           </div>
 
-         <button
-          onClick={handleShare}
-          className="w-full py-3 bg-white text-black text-xs font-bold tracking-widest"
-        >
-          SHARE STORY
-        </button>
+          <button
+            onClick={handleShare}
+            className="w-full py-3 bg-white text-black text-xs font-bold tracking-widest"
+          >
+            SHARE STORY
+          </button>
 
           <button
             onClick={() => window.open("https://www.youtube.com", "_blank")}
