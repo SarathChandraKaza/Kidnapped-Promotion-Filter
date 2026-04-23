@@ -198,7 +198,7 @@ const buildCanvas = async (): Promise<HTMLCanvasElement> => {
     // ======================
     ctx.font = `400 ${FS.tagline}px "Trebuchet MS", sans-serif`;
     ctx.fillStyle = "rgba(255,255,255,0.6)";
-    ctx.fillText("Tag two friends who should be kidnapped next", W / 2, y);
+    ctx.fillText("Tag two friends who should be KIDNAPPED next", W / 2, y);
     y += FS.tagline + L.taglineGap;
 
     // ======================
