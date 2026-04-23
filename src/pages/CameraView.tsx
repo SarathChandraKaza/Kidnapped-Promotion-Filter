@@ -15,8 +15,8 @@ interface FaceDetection {
 
 // The photo is rendered at innerW = (1080 - 80*2) = 920px wide in the download canvas.
 // We lock the capture to a 3:4 portrait crop so preview and download are always identical.
-const PHOTO_ASPECT_W = 1;
-const PHOTO_ASPECT_H = 1;
+const PHOTO_ASPECT_W = 3;
+const PHOTO_ASPECT_H = 4;
 
 declare global {
   interface Window {

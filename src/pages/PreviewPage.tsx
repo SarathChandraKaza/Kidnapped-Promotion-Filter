@@ -81,10 +81,12 @@ export function PreviewPage({ imageDataUrl, onRetake }: PreviewPageProps) {
     // photoImg is already cropped to 3:4 by CameraView — use its natural ratio.
     const photoH = Math.round((photoImg.height / photoImg.width) * innerW);
 
-    const credits =
-      "@sarath.chandra.k | @suhas_venigalla2704 | @siddu_yolo | @akhil_flawless | " +
-      "@yeswanth_karthikeya | @samhiiii___ | @shiva_koyyada | @music_mantra.mp3 | " +
-      "@abhi._gfx | @harishparthu123 | @devendardeadpool | @sketch.with.saran";
+    // const credits =
+    //   "@sarath.chandra.k | @suhas_venigalla2704 | @siddu_yolo | @akhil_flawless | " +
+    //   "@yeswanth_karthikeya | @samhiiii___ | @shiva_koyyada | @music_mantra.mp3 | " +
+    //   "@abhi._gfx | @harishparthu123 | @devendardeadpool | @sketch.with.saran";
+
+        const credits = "";
 
     const mCanvas = document.createElement("canvas");
     mCanvas.width = W;
