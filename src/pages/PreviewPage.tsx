@@ -45,11 +45,11 @@ function wrapLines(ctx: CanvasRenderingContext2D, text: string, maxWidth: number
 
 export function PreviewPage({ imageDataUrl, onRetake }: PreviewPageProps) {
   const identity = useMemo(() => {
-    const kidnapperNo = Math.floor(1000 + Math.random() * 9000);
+  const kidnapperNo = Math.floor(Math.random() * 100) + 1;
     const batch = Math.floor(50 + Math.random() * 50);
     const city = cities[Math.floor(Math.random() * cities.length)];
     return {
-      line1: `Kidnapper No. ${kidnapperNo}`,
+      line1: `Roll No. ${kidnapperNo}`,
       line2: `${getOrdinal(batch)} Batch, Trained at ${city}`,
     };
   }, []);
@@ -73,6 +73,10 @@ const buildCanvas = async (): Promise<HTMLCanvasElement> => {
     top: 20,
 
     titleGap: 0,
+
+      schoolH: 50,       // 👈 ADD THIS
+      schoolGap: 10,     // optional spacing after it
+
     imageGap: 50,
 
     identityGap: 40,
@@ -81,6 +85,7 @@ const buildCanvas = async (): Promise<HTMLCanvasElement> => {
     taglineGap: 30,
     handlesGap: 30,
 
+    instagramGap: 30, 
     hashtagGap: 10,
   };
 
@@ -88,7 +93,8 @@ const buildCanvas = async (): Promise<HTMLCanvasElement> => {
     identity: 32,
     tagline: 32,
     handles: 48,
-    hashtag: 38,
+    instagram: 26, 
+    hashtag: 28,
     credits: 28,
   };
 
@@ -105,6 +111,7 @@ const buildCanvas = async (): Promise<HTMLCanvasElement> => {
   const totalH =
     L.top +
     titleH +
+    L.schoolH + L.schoolGap +
     L.titleGap +
     photoH +
     L.imageGap +
@@ -133,6 +140,14 @@ const buildCanvas = async (): Promise<HTMLCanvasElement> => {
   // ======================
   ctx.drawImage(titleImg, (W - titleDrawW) / 2, y, titleDrawW, titleH);
   y += titleH + L.titleGap;
+
+  // ======================
+  // SCHOOL NAME (Institutional/Classic)
+  // ======================
+  ctx.font = `italic 400 45px "Georgia", "Times New Roman", serif`;
+  ctx.fillStyle = "rgba(255,255,255,0.95)";
+  ctx.fillText("PARAYANA SCHOOL OF KIDNAPPING", W / 2, y);
+  y += L.schoolH + L.schoolGap;
 
   // ======================
   // PHOTO BLOCK
@@ -166,42 +181,105 @@ const buildCanvas = async (): Promise<HTMLCanvasElement> => {
 
     y += photoH + L.imageGap;
 
-  // ======================
-  // IDENTITY
-  // ======================
-    ctx.fillStyle = "rgba(255,255,255,0.8)";
-    ctx.font = `${FS.identity}px "Courier New", monospace`;
-
-    // Draw Line 1
+    // ======================
+    // IDENTITY (The "File" Look)
+    // ======================
+    ctx.fillStyle = "rgba(255,255,255,0.85)";
+    // Adding letter spacing manually by splitting characters is hard in canvas, 
+    // so we use a bold Monospace for that "Teletype" feel.
+    ctx.font = `700 ${FS.identity}px "Courier New", monospace`;
     ctx.fillText(identity.line1.toUpperCase(), W / 2, y);
     y += L.identityGap;
-
-    // Draw Line 2
     ctx.fillText(identity.line2.toUpperCase(), W / 2, y);
     y += L.identityBottom;
 
-  // ======================
-  // TAGLINE
-  // ======================
-  ctx.font = `${FS.tagline}px "Courier New", monospace`;
-  ctx.fillStyle = "rgba(255,255,255,0.7)";
-  ctx.fillText("Tag two friends who should be kidnapped next", W / 2, y);
-  y += FS.tagline + L.taglineGap;
+    // ======================
+    // TAGLINE (Clean & Modern)
+    // ======================
+    ctx.font = `400 ${FS.tagline}px "Trebuchet MS", sans-serif`;
+    ctx.fillStyle = "rgba(255,255,255,0.6)";
+    ctx.fillText("Tag two friends who should be kidnapped next", W / 2, y);
+    y += FS.tagline + L.taglineGap;
 
-  // ======================
-  // HANDLES
-  // ======================
-  ctx.font = `${FS.handles}px "Courier New", monospace`;
-  ctx.fillStyle = "white";
-  ctx.fillText("@_______________   @_______________", W / 2, y);
-  y += FS.handles + L.handlesGap;
+    // ======================
+    // HANDLES (Bold & Interactive)
+    // ======================
+    ctx.font = `700 ${FS.handles}px "Trebuchet MS", sans-serif`;
+    ctx.fillStyle = "white";
+    ctx.fillText("@_______________   @_______________", W / 2, y);
+    y += FS.handles + L.handlesGap;
 
-  // ======================
-  // HASHTAG
-  // ======================
-  ctx.font = `bold ${FS.hashtag}px "Courier New", monospace`;
-  ctx.fillStyle = "#ff3b3b";
-  ctx.fillText("#KIDNAPPEDSHORTFILM", W / 2, y);
+    // ======================
+    // INSTAGRAM HANDLE
+    // ======================
+    const iconSize = 30;
+    const spacing = 16;
+
+    // Measure text
+    ctx.font = `400 ${FS.instagram}px "Verdana", sans-serif`;
+    const instaText = "@sarath.chandra.k";
+    const textWidth = ctx.measureText(instaText).width;
+
+    // Total width (icon + space + text)
+    const totalWidth = iconSize + spacing + textWidth;
+
+    // Start X so it's centered
+    let startX = W / 2 - totalWidth / 2;
+
+    // Draw Instagram icon (simple version)
+    const iconY = y - iconSize / 2;
+
+    // Outer rounded square
+    ctx.strokeStyle = "white";
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.roundRect(startX, iconY, iconSize, iconSize, 10);
+    ctx.stroke();
+
+    // Inner circle
+    ctx.beginPath();
+    ctx.arc(
+      startX + iconSize / 2,
+      iconY + iconSize / 2,
+      iconSize / 4,
+      0,
+      Math.PI * 2
+    );
+    ctx.stroke();
+
+    // Small dot (top-right)
+    ctx.beginPath();
+    ctx.arc(
+      startX + iconSize * 0.75,
+      iconY + iconSize * 0.25,
+      3,
+      0,
+      Math.PI * 2
+    );
+    ctx.fillStyle = "white";
+    ctx.fill();
+
+    // Draw text
+    ctx.textAlign = "left";
+    ctx.textBaseline = "middle";
+    ctx.fillStyle = "white";
+
+    ctx.fillText(instaText, startX + iconSize + spacing, y);
+
+    y += FS.instagram + L.instagramGap;
+
+    // ======================
+    // HASHTAG (Modern & Sleek)
+    // ======================
+    ctx.font = `700 ${FS.hashtag}px "Verdana", sans-serif`;
+    ctx.fillStyle = "#ff3b3b";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+
+    // To make Verdana look "vibey," we manually add a little space between letters 
+    // by drawing the text with extra spacing if you want to get fancy, 
+    // but even just the font change helps:
+    ctx.fillText("#KIDNAPPEDSHORTFILM", W / 2, y);
 
   return canvas;
 };
@@ -210,7 +288,7 @@ const buildCanvas = async (): Promise<HTMLCanvasElement> => {
     try {
       const canvas = await buildCanvas();
       const link = document.createElement("a");
-      link.download = "kidnapped_story.png";
+      link.download = "kidnapped_id.png";
       link.href = canvas.toDataURL("image/png");
       link.click();
     } catch (err) {
@@ -224,10 +302,10 @@ const buildCanvas = async (): Promise<HTMLCanvasElement> => {
       const dataUrl = canvas.toDataURL("image/png");
       const res = await fetch(dataUrl);
       const blob = await res.blob();
-      const file = new File([blob], "kidnapped.png", { type: "image/png" });
+      const file = new File([blob], "kidnapped_id.png", { type: "image/png" });
 
       if (navigator.canShare?.({ files: [file] })) {
-        await navigator.share({ title: "KIDNAPPED", text: "I am the kidnapper", files: [file] });
+        await navigator.share({ title: "KIDNAPPED", text: "I just got my ID. What about you? #kidnappedshortfilm", files: [file] });
       } else {
         const link = document.createElement("a");
         link.href = dataUrl;
@@ -264,7 +342,7 @@ const buildCanvas = async (): Promise<HTMLCanvasElement> => {
           </div>
         </div>
 
-        <h2
+        {/* <h2
           style={{
             color: "rgba(255,255,255,0.8)",
             fontSize: "11px",
@@ -280,7 +358,11 @@ const buildCanvas = async (): Promise<HTMLCanvasElement> => {
         >
           <div>{identity.line1}</div>
           <div>{identity.line2}</div>
-        </h2>
+        </h2> */}
+
+        <p className="text-white/40 text-[10px] tracking-widest mb-4">
+          NOTE: THIS PHOTO WILL BE USED FOR YOUR OFFICIAL ID
+        </p>
 
         <div className="w-full space-y-3">
           <div className="flex gap-3">
@@ -288,14 +370,14 @@ const buildCanvas = async (): Promise<HTMLCanvasElement> => {
               RETAKE
             </button>
             <button onClick={handleDownload} className="flex-1 py-3 border border-white/20 text-white text-xs tracking-widest">
-              DOWNLOAD
+              GENERATE ID CARD
             </button>
           </div>
           <button onClick={handleShare} className="w-full py-3 bg-white text-black text-xs font-bold tracking-widest">
-            SHARE STORY
+            POST YOUR ID
           </button>
           <button onClick={() => window.open("https://www.youtube.com", "_blank")} className="w-full py-3 border border-red-500 text-red-400 text-xs tracking-widest">
-            WATCH SHORT FILM
+            WATCH 'KIDNAPPED'
           </button>
         </div>
       </div>
