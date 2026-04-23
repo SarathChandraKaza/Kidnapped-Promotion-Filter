@@ -296,20 +296,6 @@ export function CameraView({ onCapture, onError }: CameraViewProps) {
         {/* Hidden capture canvas */}
         <canvas ref={canvasRef} className="hidden" />
 
-        {/* Crop guide overlay — shows the 3:4 area that will be captured */}
-        <div
-          className="absolute left-0 right-0 pointer-events-none z-15"
-          style={{
-            top: `${cropPaddingPercent}%`,
-            bottom: `${cropPaddingPercent}%`,
-          }}
-        >
-          {/* Dim areas outside the crop */}
-          <div className="absolute inset-0 ring-[9999px] ring-black/40" />
-          {/* Crop border */}
-          <div className="absolute inset-0 border border-white/25" />
-        </div>
-
         {/* Top: KIDNAPPED text */}
         <div className="absolute top-[-25px] left-0 right-0 z-20 pt-safe">
           <div className="flex flex-col items-center">
@@ -397,19 +383,19 @@ export function CameraView({ onCapture, onError }: CameraViewProps) {
         {/* Corner brackets — aligned to the crop guide */}
         <div
           className="absolute left-[15%] w-6 h-6 border-t-2 border-l-2 border-white/50 pointer-events-none z-20"
-          style={{ top: `calc(${cropPaddingPercent}% + 0px)` }}
+          style={{ top: `calc(${cropPaddingPercent}% + 100px)` }}
         />
         <div
           className="absolute right-[15%] w-6 h-6 border-t-2 border-r-2 border-white/50 pointer-events-none z-20"
-          style={{ top: `calc(${cropPaddingPercent}% + 0px)` }}
+          style={{ top: `calc(${cropPaddingPercent}% + 100px)` }}
         />
         <div
           className="absolute left-[15%] w-6 h-6 border-b-2 border-l-2 border-white/50 pointer-events-none z-20"
-          style={{ bottom: `calc(${cropPaddingPercent}% + 0px)` }}
+          style={{ bottom: `calc(${cropPaddingPercent}% + 100px)` }}
         />
         <div
           className="absolute right-[15%] w-6 h-6 border-b-2 border-r-2 border-white/50 pointer-events-none z-20"
-          style={{ bottom: `calc(${cropPaddingPercent}% + 0px)` }}
+          style={{ bottom: `calc(${cropPaddingPercent}% + 100px)` }}
         />
       </div>
     </div>
