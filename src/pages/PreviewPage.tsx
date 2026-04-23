@@ -80,7 +80,7 @@ const buildCanvas = async (): Promise<HTMLCanvasElement> => {
     imageGap: 50,
 
     identityGap: 40,
-    identityBottom: 60,
+    identityBottom: 70,
 
     taglineGap: 30,
     handlesGap: 30,
@@ -139,7 +139,10 @@ const buildCanvas = async (): Promise<HTMLCanvasElement> => {
   // TITLE
   // ======================
   ctx.drawImage(titleImg, (W - titleDrawW) / 2, y, titleDrawW, titleH);
+
   y += titleH + L.titleGap;
+  
+  const boxStartY = y-40;
 
   // ======================
   // SCHOOL NAME (Institutional/Classic)
@@ -191,7 +194,70 @@ const buildCanvas = async (): Promise<HTMLCanvasElement> => {
     ctx.fillText(identity.line1.toUpperCase(), W / 2, y);
     y += L.identityGap;
     ctx.fillText(identity.line2.toUpperCase(), W / 2, y);
+
+    const boxEndY = y;
+
     y += L.identityBottom;
+
+
+    //Drawing box
+    ctx.save();
+
+    const boxX = L.pad - 20;
+    const boxW = innerW + 40;
+    const boxY = boxStartY - 20;
+    const boxH = (boxEndY - boxStartY) + 40;
+
+    // ======================
+    // 1. SOFT GLOW (outer aura)
+    // ======================
+    ctx.shadowColor = "rgba(255,255,255,0.15)";
+    ctx.shadowBlur = 25;
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = "rgba(255,255,255,0.25)";
+
+    ctx.beginPath();
+    ctx.roundRect(boxX, boxY, boxW, boxH, 30);
+    ctx.stroke();
+
+    // reset shadow so it doesn't affect next layers
+    ctx.shadowBlur = 0;
+
+
+    // ======================
+    // 2. INNER FILL (glass feel)
+    // ======================
+    ctx.fillStyle = "rgba(255,255,255,0.03)";
+    ctx.beginPath();
+    ctx.roundRect(boxX, boxY, boxW, boxH, 30);
+    ctx.fill();
+
+
+    // ======================
+    // 3. INNER HIGHLIGHT BORDER
+    // ======================
+    ctx.strokeStyle = "rgba(255,255,255,0.08)";
+    ctx.lineWidth = 1;
+
+    ctx.beginPath();
+    ctx.roundRect(boxX + 2, boxY + 2, boxW - 4, boxH - 4, 28);
+    ctx.stroke();
+
+
+    // ======================
+    // 4. TOP LIGHT GRADIENT (cinematic)
+    // ======================
+    const gradient = ctx.createLinearGradient(0, boxY, 0, boxY + boxH);
+    gradient.addColorStop(0, "rgba(255,255,255,0.12)");
+    gradient.addColorStop(0.2, "rgba(255,255,255,0.04)");
+    gradient.addColorStop(1, "rgba(255,255,255,0)");
+
+    ctx.fillStyle = gradient;
+    ctx.beginPath();
+    ctx.roundRect(boxX, boxY, boxW, boxH, 30);
+    ctx.fill();
+
+    ctx.restore();
 
     // ======================
     // TAGLINE (Clean & Modern)
