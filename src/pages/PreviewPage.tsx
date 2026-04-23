@@ -54,137 +54,163 @@ export function PreviewPage({ imageDataUrl, onRetake }: PreviewPageProps) {
     };
   }, []);
 
-  const buildCanvas = async (): Promise<HTMLCanvasElement> => {
-    await document.fonts.ready;
+const buildCanvas = async (): Promise<HTMLCanvasElement> => {
+  await document.fonts.ready;
 
-    const [photoImg, titleImg, capImg] = await Promise.all([
-      loadImage(imageDataUrl),
-      loadImage("./kidnapped-title.png"),
-      loadImage("./monkey-cap-png.png"),
-    ]);
+  const [photoImg, titleImg, capImg] = await Promise.all([
+    loadImage(imageDataUrl),
+    loadImage("./kidnapped-title.png"),
+    loadImage("./monkey-cap-png.png"),
+  ]);
 
-    const W = 1080;
-    const PAD = 80;
-    const innerW = W - PAD * 2;
+  const W = 1080;
 
-    const FS = {
-      identity: 32,
-      tagline: 32,
-      handles: 48,
-      hashtag: 38,
-      credits: 28,
-    };
+  // ======================
+  // 🎛️ EASY TWEAK CONFIG
+  // ======================
+  const L = {
+    pad: 80,
+    top: 20,
 
-    const titleDrawW = 600;
-    const titleH = Math.round((titleImg.height / titleImg.width) * titleDrawW);
+    titleGap: 20,
+    imageGap: 50,
 
-    // photoImg is already cropped to 3:4 by CameraView — use its natural ratio.
-    const photoH = Math.round((photoImg.height / photoImg.width) * innerW);
+    identityGap: 40,
+    identityBottom: 60,
 
-    // const credits =
-    //   "@sarath.chandra.k | @suhas_venigalla2704 | @siddu_yolo | @akhil_flawless | " +
-    //   "@yeswanth_karthikeya | @samhiiii___ | @shiva_koyyada | @music_mantra.mp3 | " +
-    //   "@abhi._gfx | @harishparthu123 | @devendardeadpool | @sketch.with.saran";
+    taglineGap: 40,
+    handlesGap: 50,
 
-    const mCanvas = document.createElement("canvas");
-    mCanvas.width = W;
-    mCanvas.height = 10;
-    const mCtx = mCanvas.getContext("2d")!;
-    mCtx.font = `${FS.credits}px "Courier New", monospace`;
-    const creditsLineH = Math.round(FS.credits * 1.6);
-
-    const totalH =
-      30 +
-      titleH +
-      40 +
-      photoH +
-      70 +
-      FS.identity + FS.identity * 2 +
-      20 +
-      90 +
-      FS.tagline +
-      60 +
-      FS.handles +
-      70 +
-      FS.hashtag +
-      40;
-
-    const canvas = document.createElement("canvas");
-    canvas.width = W;
-    canvas.height = Math.ceil(totalH);
-
-    const ctx = canvas.getContext("2d")!;
-    ctx.fillStyle = "#050505";
-    ctx.fillRect(0, 0, W, canvas.height);
-    ctx.textAlign = "center";
-
-    let y = 10;
-
-    ctx.drawImage(titleImg, (W - titleDrawW) / 2, y, titleDrawW, titleH);
-    y += titleH + 10;
-
-    const roundRect = (x: number, ry: number, w: number, h: number, r: number) => {
-      ctx.beginPath();
-      ctx.moveTo(x + r, ry);
-      ctx.lineTo(x + w - r, ry);
-      ctx.quadraticCurveTo(x + w, ry, x + w, ry + r);
-      ctx.lineTo(x + w, ry + h - r);
-      ctx.quadraticCurveTo(x + w, ry + h, x + w - r, ry + h);
-      ctx.lineTo(x + r, ry + h);
-      ctx.quadraticCurveTo(x, ry + h, x, ry + h - r);
-      ctx.lineTo(x, ry + r);
-      ctx.quadraticCurveTo(x, ry, x + r, ry);
-      ctx.closePath();
-    };
-
-    ctx.save();
-    roundRect(PAD, y, innerW, photoH, 24);
-    ctx.clip();
-    ctx.drawImage(photoImg, PAD, y, innerW, photoH);
-    ctx.restore();
-
-    ctx.strokeStyle = "rgba(255,255,255,0.15)";
-    ctx.lineWidth = 1;
-    roundRect(PAD, y, innerW, photoH, 24);
-    ctx.stroke();
-
-    const capW = innerW * 0.6;
-    const capH = Math.round((capImg.height / capImg.width) * capW);
-    ctx.save();
-    ctx.translate(PAD + innerW / 2, y + photoH * 0.10 + capH / 2);
-    ctx.rotate((-4 * Math.PI) / 180);
-    ctx.drawImage(capImg, -capW / 2, -capH / 2, capW, capH);
-    ctx.restore();
-
-    y += photoH + 70;
-
-    ctx.fillStyle = "rgba(255,255,255,0.8)";
-    ctx.font = `${FS.identity}px "Courier New", monospace`;
-    ctx.fillText(identity.line1.toUpperCase(), W / 2, y);
-    y += FS.identity + 20;
-    ctx.fillText(identity.line2.toUpperCase(), W / 2, y);
-    y += FS.identity * 2 + 90;
-
-    ctx.font = `${FS.tagline}px "Courier New", monospace`;
-    ctx.fillStyle = "rgba(255,255,255,0.7)";
-    ctx.fillText("Tag two friends who should be kidnapped next", W / 2, y);
-    y += FS.tagline + 60;
-
-    ctx.font = `${FS.handles}px "Courier New", monospace`;
-    ctx.fillStyle = "white";
-    ctx.fillText("@_______________   @_______________", W / 2, y);
-    y += FS.handles + 70;
-
-    ctx.font = `bold ${FS.hashtag}px "Courier New", monospace`;
-    ctx.fillStyle = "#ff3b3b";
-    ctx.fillText("#KIDNAPPEDSHORTFILM", W / 2, y);
-    y += FS.hashtag + 40;
-
-    ctx.font = `${FS.credits}px "Courier New", monospace`;
-    ctx.fillStyle = "rgba(255,255,255,0.4)";
-
-    return canvas;
+    hashtagGap: 40,
   };
+
+  const FS = {
+    identity: 32,
+    tagline: 32,
+    handles: 48,
+    hashtag: 38,
+    credits: 28,
+  };
+
+  const innerW = W - L.pad * 2;
+
+  const titleDrawW = 600;
+  const titleH = Math.round((titleImg.height / titleImg.width) * titleDrawW);
+
+  const photoH = Math.round((photoImg.height / photoImg.width) * innerW);
+
+  // ======================
+  // HEIGHT CALC (IMPORTANT)
+  // ======================
+  const totalH =
+    L.top +
+    titleH +
+    L.titleGap +
+    photoH +
+    L.imageGap +
+    140 + // identity block approx
+    FS.tagline +
+    L.taglineGap +
+    FS.handles +
+    L.handlesGap +
+    FS.hashtag +
+    L.hashtagGap +
+    40;
+
+  const canvas = document.createElement("canvas");
+  canvas.width = W;
+  canvas.height = Math.ceil(totalH);
+
+  const ctx = canvas.getContext("2d")!;
+  ctx.fillStyle = "#050505";
+  ctx.fillRect(0, 0, W, canvas.height);
+  ctx.textAlign = "center";
+
+  let y = L.top;
+
+  // ======================
+  // TITLE
+  // ======================
+  ctx.drawImage(titleImg, (W - titleDrawW) / 2, y, titleDrawW, titleH);
+  y += titleH + L.titleGap;
+
+  // ======================
+  // PHOTO BLOCK
+  // ======================
+  const roundRect = (x: number, y0: number, w: number, h: number, r: number) => {
+    ctx.beginPath();
+    ctx.moveTo(x + r, y0);
+    ctx.lineTo(x + w - r, y0);
+    ctx.quadraticCurveTo(x + w, y0, x + w, y0 + r);
+    ctx.lineTo(x + w, y0 + h - r);
+    ctx.quadraticCurveTo(x + w, y0 + h, x + w - r, y0 + h);
+    ctx.lineTo(x + r, y0 + h);
+    ctx.quadraticCurveTo(x, y0 + h, x, y0 + h - r);
+    ctx.lineTo(x, y0 + r);
+    ctx.quadraticCurveTo(x, y0, x + r, y0);
+    ctx.closePath();
+  };
+
+  ctx.save();
+  roundRect(L.pad, y, innerW, photoH, 24);
+  ctx.clip();
+  ctx.drawImage(photoImg, L.pad, y, innerW, photoH);
+  ctx.restore();
+
+  ctx.strokeStyle = "rgba(255,255,255,0.15)";
+  ctx.lineWidth = 1;
+  roundRect(L.pad, y, innerW, photoH, 24);
+  ctx.stroke();
+
+  // cap overlay
+  const capW = innerW * 0.6;
+  const capH = Math.round((capImg.height / capImg.width) * capW);
+
+  ctx.save();
+  ctx.translate(L.pad + innerW / 2, y + photoH * 0.1 + capH / 2);
+  ctx.rotate((-4 * Math.PI) / 180);
+  ctx.drawImage(capImg, -capW / 2, -capH / 2, capW, capH);
+  ctx.restore();
+
+  y += photoH + L.imageGap;
+
+  // ======================
+  // IDENTITY
+  // ======================
+  ctx.fillStyle = "rgba(255,255,255,0.8)";
+  ctx.font = `${FS.identity}px "Courier New", monospace`;
+
+  ctx.fillText(identity.line1.toUpperCase(), W / 2, y);
+  y += L.identityGap;
+
+  ctx.fillText(identity.line2.toUpperCase(), W / 2, y);
+  y += L.identityBottom;
+
+  // ======================
+  // TAGLINE
+  // ======================
+  ctx.font = `${FS.tagline}px "Courier New", monospace`;
+  ctx.fillStyle = "rgba(255,255,255,0.7)";
+  ctx.fillText("Tag two friends who should be kidnapped next", W / 2, y);
+  y += FS.tagline + L.taglineGap;
+
+  // ======================
+  // HANDLES
+  // ======================
+  ctx.font = `${FS.handles}px "Courier New", monospace`;
+  ctx.fillStyle = "white";
+  ctx.fillText("@_______________   @_______________", W / 2, y);
+  y += FS.handles + L.handlesGap;
+
+  // ======================
+  // HASHTAG
+  // ======================
+  ctx.font = `bold ${FS.hashtag}px "Courier New", monospace`;
+  ctx.fillStyle = "#ff3b3b";
+  ctx.fillText("#KIDNAPPEDSHORTFILM", W / 2, y);
+
+  return canvas;
+};
 
   const handleDownload = async () => {
     try {
