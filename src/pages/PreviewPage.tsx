@@ -151,32 +151,34 @@ const buildCanvas = async (): Promise<HTMLCanvasElement> => {
     ctx.closePath();
   };
 
-  ctx.save();
-  roundRect(L.pad, y, innerW, photoH, 24);
-  ctx.clip();
-  ctx.drawImage(photoImg, L.pad, y, innerW, photoH);
-  ctx.restore();
+    ctx.save();
+    roundRect(L.pad, y, innerW, photoH, 24);
+    ctx.clip();
 
-  ctx.strokeStyle = "rgba(255,255,255,0.15)";
-  ctx.lineWidth = 1;
-  roundRect(L.pad, y, innerW, photoH, 24);
-  ctx.stroke();
+    // 1. Draw the user photo
+    ctx.drawImage(photoImg, L.pad, y, innerW, photoH);
 
-  // CAP (DIRECT FIT)
-  // Draw the cap image exactly on top of the photo rectangle
-  ctx.drawImage(capImg, L.pad, y, innerW, photoH);
+    // 2. Draw the cap overlay (clipped so it doesn't spill out of the rounded corners)
+    // This ensures the cap is the EXACT same size as the photo
+    ctx.drawImage(capImg, L.pad, y, innerW, photoH);
+
+    ctx.restore();
+
+    y += photoH + L.imageGap;
 
   // ======================
   // IDENTITY
   // ======================
-  ctx.fillStyle = "rgba(255,255,255,0.8)";
-  ctx.font = `${FS.identity}px "Courier New", monospace`;
+    ctx.fillStyle = "rgba(255,255,255,0.8)";
+    ctx.font = `${FS.identity}px "Courier New", monospace`;
 
-  ctx.fillText(identity.line1.toUpperCase(), W / 2, y);
-  y += L.identityGap;
+    // Draw Line 1
+    ctx.fillText(identity.line1.toUpperCase(), W / 2, y);
+    y += L.identityGap;
 
-  ctx.fillText(identity.line2.toUpperCase(), W / 2, y);
-  y += L.identityBottom;
+    // Draw Line 2
+    ctx.fillText(identity.line2.toUpperCase(), W / 2, y);
+    y += L.identityBottom;
 
   // ======================
   // TAGLINE
