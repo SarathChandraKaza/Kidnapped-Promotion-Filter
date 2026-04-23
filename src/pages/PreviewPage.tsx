@@ -162,34 +162,9 @@ const buildCanvas = async (): Promise<HTMLCanvasElement> => {
   roundRect(L.pad, y, innerW, photoH, 24);
   ctx.stroke();
 
-// ======================
-// CAP (DIRECT FIT - 3:4 MATCHED)
-// ======================
-
-    ctx.save();
-
-    // move to center of photo
-    ctx.translate(
-      L.pad + innerW / 2,
-      y + photoH / 2
-    );
-
-    // rotate if needed
-    ctx.rotate((-4 * Math.PI) / 180);
-
-    // scale ×2
-    ctx.scale(2, 2);
-
-    // draw centered
-    ctx.drawImage(
-      capImg,
-      -innerW / 2,
-      -photoH / 2,
-      innerW,
-      photoH
-    );
-
-    ctx.restore();
+  // CAP (DIRECT FIT)
+  // Draw the cap image exactly on top of the photo rectangle
+  ctx.drawImage(capImg, L.pad, y, innerW, photoH);
 
   // ======================
   // IDENTITY
@@ -280,8 +255,9 @@ const buildCanvas = async (): Promise<HTMLCanvasElement> => {
             />
             <img
               src="./monkey-cap-png.png"
-              className="absolute pointer-events-none"
-              style={{ top: "10%", left: "20%", width: "60%", transform: "rotate(-4deg)" }}
+              className="absolute inset-0 w-full h-full object-fill pointer-events-none"
+              style={{ zIndex: 10 }}
+              alt="Cap Overlay"
             />
           </div>
         </div>
