@@ -162,15 +162,30 @@ const buildCanvas = async (): Promise<HTMLCanvasElement> => {
   roundRect(L.pad, y, innerW, photoH, 24);
   ctx.stroke();
 
-  // cap overlay
-  const capW = innerW * 0.6;
-  const capH = Math.round((capImg.height / capImg.width) * capW);
+// CAP (COVER FULL PHOTO AREA)
+// ======================
+    const capSize = Math.max(innerW, photoH); // cover logic
 
-  ctx.save();
-  ctx.translate(L.pad + innerW / 2, y + photoH * 0.1 + capH / 2);
-  ctx.rotate((-4 * Math.PI) / 180);
-  ctx.drawImage(capImg, -capW / 2, -capH / 2, capW, capH);
-  ctx.restore();
+    ctx.save();
+
+    // center over photo
+    ctx.translate(
+      L.pad + innerW / 2,
+      y + photoH / 2
+    );
+
+    ctx.rotate((-4 * Math.PI) / 180);
+
+    // draw as "cover"
+    ctx.drawImage(
+      capImg,
+      -capSize / 2,
+      -capSize / 2,
+      capSize,
+      capSize
+    );
+
+    ctx.restore();
 
   y += photoH + L.imageGap;
 
