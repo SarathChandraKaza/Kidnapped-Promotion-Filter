@@ -78,10 +78,10 @@ const buildCanvas = async (): Promise<HTMLCanvasElement> => {
     identityGap: 40,
     identityBottom: 60,
 
-    taglineGap: 40,
-    handlesGap: 50,
+    taglineGap: 10,
+    handlesGap: 1,
 
-    hashtagGap: 40,
+    hashtagGap: 1,
   };
 
   const FS = {
