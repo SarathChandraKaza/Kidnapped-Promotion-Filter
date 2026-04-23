@@ -168,14 +168,26 @@ const buildCanvas = async (): Promise<HTMLCanvasElement> => {
 
     ctx.save();
 
-    // move to photo position
-    ctx.translate(L.pad, y);
+    // move to center of photo
+    ctx.translate(
+      L.pad + innerW / 2,
+      y + photoH / 2
+    );
 
-    // optional slight rotation
+    // rotate if needed
     ctx.rotate((-4 * Math.PI) / 180);
 
-    // draw cap exactly into photo frame
-    ctx.drawImage(capImg, 0, 0, innerW, photoH);
+    // scale ×2
+    ctx.scale(2, 2);
+
+    // draw centered
+    ctx.drawImage(
+      capImg,
+      -innerW / 2,
+      -photoH / 2,
+      innerW,
+      photoH
+    );
 
     ctx.restore();
 
