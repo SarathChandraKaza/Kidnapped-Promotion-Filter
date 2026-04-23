@@ -26,7 +26,6 @@ function loadImage(src: string): Promise<HTMLImageElement> {
   });
 }
 
-// Returns wrapped lines for given text, font must already be set on ctx
 function wrapLines(ctx: CanvasRenderingContext2D, text: string, maxWidth: number): string[] {
   const words = text.split(" ");
   const lines: string[] = [];
@@ -68,7 +67,6 @@ export function PreviewPage({ imageDataUrl, onRetake }: PreviewPageProps) {
     const PAD = 80;
     const innerW = W - PAD * 2;
 
-    // Font sizes
     const FS = {
       identity: 32,
       tagline: 32,
@@ -77,9 +75,10 @@ export function PreviewPage({ imageDataUrl, onRetake }: PreviewPageProps) {
       credits: 28,
     };
 
-    // Image heights from real aspect ratios
     const titleDrawW = 600;
     const titleH = Math.round((titleImg.height / titleImg.width) * titleDrawW);
+
+    // photoImg is already cropped to 3:4 by CameraView — use its natural ratio.
     const photoH = Math.round((photoImg.height / photoImg.width) * innerW);
 
     const credits =
@@ -87,7 +86,6 @@ export function PreviewPage({ imageDataUrl, onRetake }: PreviewPageProps) {
       "@yeswanth_karthikeya | @samhiiii___ | @shiva_koyyada | @music_mantra.mp3 | " +
       "@abhi._gfx | @harishparthu123 | @devendardeadpool | @sketch.with.saran";
 
-    // ── PASS 1: measure credit lines on a tiny throw-away canvas ──────────
     const mCanvas = document.createElement("canvas");
     mCanvas.width = W;
     mCanvas.height = 10;
@@ -96,16 +94,15 @@ export function PreviewPage({ imageDataUrl, onRetake }: PreviewPageProps) {
     const creditLines = wrapLines(mCtx, credits, innerW);
     const creditsLineH = Math.round(FS.credits * 1.6);
 
-    // ── Exact total height — nothing estimated ─────────────────────────────
     const totalH =
-      100 +                               // top padding
+      100 +
       titleH +
-      40 +                               // gap after title
+      40 +
       photoH +
-      70 +                               // gap after photo
-      FS.identity + FS.identity * 2 +    // two identity lines (baseline spaced)
-      20 +                               // gap between identity lines
-      90 +                               // gap after identity block
+      70 +
+      FS.identity + FS.identity * 2 +
+      20 +
+      90 +
       FS.tagline +
       60 +
       FS.handles +
@@ -113,9 +110,8 @@ export function PreviewPage({ imageDataUrl, onRetake }: PreviewPageProps) {
       FS.hashtag +
       40 +
       creditLines.length * creditsLineH +
-      120;                               // bottom padding
+      120;
 
-    // ── PASS 2: draw on correctly-sized canvas ────────────────────────────
     const canvas = document.createElement("canvas");
     canvas.width = W;
     canvas.height = Math.ceil(totalH);
@@ -127,11 +123,9 @@ export function PreviewPage({ imageDataUrl, onRetake }: PreviewPageProps) {
 
     let y = 100;
 
-    // Title
     ctx.drawImage(titleImg, (W - titleDrawW) / 2, y, titleDrawW, titleH);
     y += titleH + 40;
 
-    // Photo — full natural aspect ratio, rounded clip
     const roundRect = (x: number, ry: number, w: number, h: number, r: number) => {
       ctx.beginPath();
       ctx.moveTo(x + r, ry);
@@ -157,7 +151,6 @@ export function PreviewPage({ imageDataUrl, onRetake }: PreviewPageProps) {
     roundRect(PAD, y, innerW, photoH, 24);
     ctx.stroke();
 
-    // Monkey cap
     const capW = innerW * 0.6;
     const capH = Math.round((capImg.height / capImg.width) * capW);
     ctx.save();
@@ -168,7 +161,6 @@ export function PreviewPage({ imageDataUrl, onRetake }: PreviewPageProps) {
 
     y += photoH + 70;
 
-    // Identity
     ctx.fillStyle = "rgba(255,255,255,0.8)";
     ctx.font = `${FS.identity}px "Courier New", monospace`;
     ctx.fillText(identity.line1.toUpperCase(), W / 2, y);
@@ -176,25 +168,21 @@ export function PreviewPage({ imageDataUrl, onRetake }: PreviewPageProps) {
     ctx.fillText(identity.line2.toUpperCase(), W / 2, y);
     y += FS.identity * 2 + 90;
 
-    // Tagline
     ctx.font = `${FS.tagline}px "Courier New", monospace`;
     ctx.fillStyle = "rgba(255,255,255,0.7)";
     ctx.fillText("Tag two friends who should be kidnapped next", W / 2, y);
     y += FS.tagline + 60;
 
-    // Handles
     ctx.font = `${FS.handles}px "Courier New", monospace`;
     ctx.fillStyle = "white";
     ctx.fillText("@_______________   @_______________", W / 2, y);
     y += FS.handles + 70;
 
-    // Hashtag
     ctx.font = `bold ${FS.hashtag}px "Courier New", monospace`;
     ctx.fillStyle = "#ff3b3b";
     ctx.fillText("#KIDNAPPEDSHORTFILM", W / 2, y);
     y += FS.hashtag + 40;
 
-    // Credits — exact pre-measured lines, no guessing
     ctx.font = `${FS.credits}px "Courier New", monospace`;
     ctx.fillStyle = "rgba(255,255,255,0.4)";
     for (const line of creditLines) {
@@ -244,9 +232,16 @@ export function PreviewPage({ imageDataUrl, onRetake }: PreviewPageProps) {
 
         <img src="./kidnapped-title.png" className="w-48 mb-8 opacity-90" alt="Logo" />
 
+        {/* Photo preview — enforces the same 3:4 ratio as the download canvas */}
         <div className="w-full rounded-xl overflow-hidden border border-white/10 mb-6">
-          <div className="relative w-full">
-            <img src={imageDataUrl} className="w-full block" />
+          <div
+            className="relative w-full"
+            style={{ aspectRatio: "3 / 4" }}
+          >
+            <img
+              src={imageDataUrl}
+              className="absolute inset-0 w-full h-full object-cover block"
+            />
             <img
               src="./monkey-cap-png.png"
               className="absolute pointer-events-none"
