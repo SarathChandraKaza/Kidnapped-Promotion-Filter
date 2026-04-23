@@ -75,7 +75,7 @@ const buildCanvas = async (): Promise<HTMLCanvasElement> => {
     titleGap: 0,
 
       schoolH: 50,       // 👈 ADD THIS
-      schoolGap: 10,     // optional spacing after it
+      schoolGap: 5,     // optional spacing after it
 
     imageGap: 50,
 
@@ -350,38 +350,119 @@ const buildCanvas = async (): Promise<HTMLCanvasElement> => {
   return canvas;
 };
 
-  const handleDownload = async () => {
-    try {
-      const canvas = await buildCanvas();
+const handleDownload = async () => {
+  try {
+    const baseCanvas = await buildCanvas();
+
+    // ======================
+    // 📱 STORY CANVAS (9:16)
+    // ======================
+    const storyW = 1080;
+    const storyH = 1920;
+
+    const storyCanvas = document.createElement("canvas");
+    storyCanvas.width = storyW;
+    storyCanvas.height = storyH;
+
+    const ctx = storyCanvas.getContext("2d")!;
+
+    // Black background
+    ctx.fillStyle = "black";
+    ctx.fillRect(0, 0, storyW, storyH);
+
+    // ======================
+    // 📐 SCALE + CENTER
+    // ======================
+    const scale = Math.min(
+      storyW / baseCanvas.width,
+      storyH / baseCanvas.height
+    );
+
+    const drawW = baseCanvas.width * scale;
+    const drawH = baseCanvas.height * scale;
+
+    const x = (storyW - drawW) / 2;
+    const y = (storyH - drawH) / 2;
+
+    ctx.drawImage(baseCanvas, x, y, drawW, drawH);
+
+    // ======================
+    // 💾 DOWNLOAD
+    // ======================
+    const link = document.createElement("a");
+    link.download = "kidnapped_id.png";
+    link.href = storyCanvas.toDataURL("image/png");
+    link.click();
+
+  } catch (err) {
+    console.error("Export failed:", err);
+  }
+};
+
+const handleShare = async () => {
+  try {
+    const baseCanvas = await buildCanvas();
+
+    // ======================
+    // 📱 STORY CANVAS (9:16)
+    // ======================
+    const storyW = 1080;
+    const storyH = 1920;
+
+    const storyCanvas = document.createElement("canvas");
+    storyCanvas.width = storyW;
+    storyCanvas.height = storyH;
+
+    const ctx = storyCanvas.getContext("2d")!;
+
+    // Background (use black or gradient)
+    ctx.fillStyle = "black";
+    ctx.fillRect(0, 0, storyW, storyH);
+
+    // ======================
+    // 📐 SCALE + CENTER
+    // ======================
+    const scale = Math.min(
+      storyW / baseCanvas.width,
+      storyH / baseCanvas.height
+    );
+
+    const drawW = baseCanvas.width * scale;
+    const drawH = baseCanvas.height * scale;
+
+    const x = (storyW - drawW) / 2;
+    const y = (storyH - drawH) / 2 - 60; // 👈 slight upward shift (optional but good)
+
+    ctx.drawImage(baseCanvas, x, y, drawW, drawH);
+
+    // ======================
+    // 📦 CONVERT TO FILE
+    // ======================
+    const dataUrl = storyCanvas.toDataURL("image/png");
+    const res = await fetch(dataUrl);
+    const blob = await res.blob();
+    const file = new File([blob], "kidnapped_id.png", { type: "image/png" });
+
+    // ======================
+    // 🚀 SHARE
+    // ======================
+    if (navigator.canShare?.({ files: [file] })) {
+      await navigator.share({
+        title: "KIDNAPPED",
+        text: "I just got my ID. What about you? Tag @sarath.chandra.k 👀 #kidnappedshortfilm",
+        files: [file],
+      });
+    } else {
       const link = document.createElement("a");
+      link.href = dataUrl;
       link.download = "kidnapped_id.png";
-      link.href = canvas.toDataURL("image/png");
       link.click();
-    } catch (err) {
-      console.error("Export failed:", err);
     }
-  };
 
-  const handleShare = async () => {
-    try {
-      const canvas = await buildCanvas();
-      const dataUrl = canvas.toDataURL("image/png");
-      const res = await fetch(dataUrl);
-      const blob = await res.blob();
-      const file = new File([blob], "kidnapped_id.png", { type: "image/png" });
-
-      if (navigator.canShare?.({ files: [file] })) {
-        await navigator.share({ title: "KIDNAPPED", text: "I just got my ID. What about you? #kidnappedshortfilm", files: [file] });
-      } else {
-        const link = document.createElement("a");
-        link.href = dataUrl;
-        link.download = "kidnapped.png";
-        link.click();
-      }
-    } catch (err) {
-      console.error("Share failed:", err);
-    }
-  };
+  } catch (err) {
+    console.error("Share failed:", err);
+  }
+};
 
   return (
     <div className="relative h-screen flex flex-col items-center pt-8 pb-12 px-6 bg-[#0a0a0a] overflow-y-auto">
