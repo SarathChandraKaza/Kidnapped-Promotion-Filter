@@ -72,7 +72,7 @@ const buildCanvas = async (): Promise<HTMLCanvasElement> => {
     pad: 80,
     top: 20,
 
-    titleGap: 10,
+    titleGap: 1,
     imageGap: 40,
 
     identityGap: 40,
