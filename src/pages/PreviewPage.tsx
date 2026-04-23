@@ -126,7 +126,8 @@ const handleDownload = async () => {
   top: 0,
   left: "-9999px",
   width: "1080px",
-  height: "1920px",
+  height: "auto",
+  minHeight: "1920px",
   background: "#050505",
   display: "flex",
   flexDirection: "column",
@@ -146,17 +147,23 @@ const handleDownload = async () => {
           style={{
             width: "100%",
             borderRadius: "24px",
-            overflow: "hidden",
+            overflow: "visible",
             border: "1px solid rgba(255,255,255,0.15)",
             marginBottom: "50px",
+            flexShrink: 0,
           }}
         >
-          <div style={{ position: "relative", width: "100%" }}>
-            {/* base image */}
+          <div style={{ position: "relative", width: "100%", lineHeight: 0 }}>
+            {/* base image — natural aspect ratio preserved */}
             <img
               src={imageDataUrl}
               crossOrigin="anonymous"
-              style={{ width: "100%", display: "block" }}
+              style={{
+                width: "100%",
+                height: "auto",
+                display: "block",
+                borderRadius: "24px",
+              }}
             />
 
             {/* monkey cap overlay */}
