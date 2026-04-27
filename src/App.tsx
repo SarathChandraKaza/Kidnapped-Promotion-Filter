@@ -3,6 +3,7 @@ import { LandingPage } from "@/pages/LandingPage";
 import { CameraView } from "@/pages/CameraView";
 import { PreviewPage } from "@/pages/PreviewPage";
 import { PermissionError } from "@/pages/PermissionError";
+import { analytics } from "@/analytics"; // ← ADD THIS
 
 type Screen = "landing" | "camera" | "preview" | "error";
 
@@ -15,6 +16,7 @@ export default function App() {
   }, []);
 
   const handleCapture = useCallback((imageDataUrl: string) => {
+    analytics.trackCapture(); // ← TRACK
     setCapturedImage(imageDataUrl);
     setScreen("preview");
   }, []);
@@ -28,16 +30,6 @@ export default function App() {
     setScreen("camera");
   }, []);
 
-  // const handleDownload = useCallback(() => {
-  //   if (!capturedImage) return;
-  //   const link = document.createElement("a");
-  //   link.href = capturedImage;
-  //   link.download = "kidnapped_selfie.png";
-  //   document.body.appendChild(link);
-  //   link.click();
-  //   document.body.removeChild(link);
-  // }, [capturedImage]);
-
   const handleRetry = useCallback(() => {
     setScreen("landing");
   }, []);
@@ -49,11 +41,7 @@ export default function App() {
         <CameraView onCapture={handleCapture} onError={handleError} />
       )}
       {screen === "preview" && capturedImage && (
-        <PreviewPage
-          imageDataUrl={capturedImage}
-          onRetake={handleRetake}
-          // onDownload={handleDownload}
-        />
+        <PreviewPage imageDataUrl={capturedImage} onRetake={handleRetake} />
       )}
       {screen === "error" && <PermissionError onRetry={handleRetry} />}
     </>
