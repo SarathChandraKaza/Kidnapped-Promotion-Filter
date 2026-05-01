@@ -108,6 +108,20 @@ function sendToSheet(session: SessionData): void {
   }
 }
 
+function formatTimestamp(date: Date): string {
+  const pad = (n: number) => n.toString().padStart(2, "0");
+
+  const hours = pad(date.getHours());
+  const minutes = pad(date.getMinutes());
+  const seconds = pad(date.getSeconds());
+
+  const day = pad(date.getDate());
+  const month = pad(date.getMonth() + 1);
+  const year = date.getFullYear();
+
+  return `${hours}:${minutes}:${seconds} ${day}/${month}/${year}`;
+}
+
 // ─────────────────────────────────────────────────────────────
 // Main Analytics class
 // ─────────────────────────────────────────────────────────────
@@ -119,7 +133,7 @@ class Analytics {
   constructor() {
     this.session = {
       sessionId: generateSessionId(),
-      timestamp: new Date().toISOString(),
+      timestamp: formatTimestamp(new Date()),
       ip: null,
       latitude: null,
       longitude: null,
