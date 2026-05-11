@@ -211,7 +211,7 @@ export function PreviewPage({ imageDataUrl, onRetake }: PreviewPageProps) {
     const iconSize = 30;
     const spacing = 16;
     ctx.font = `400 ${FS.instagram}px "Verdana", sans-serif`;
-    const instaText = "@sarath.chandra.k";
+    const instaText = "@lawnmates.kino";
     const textWidth = ctx.measureText(instaText).width;
     const totalWidth = iconSize + spacing + textWidth;
     let startX = W / 2 - totalWidth / 2;
@@ -317,7 +317,7 @@ export function PreviewPage({ imageDataUrl, onRetake }: PreviewPageProps) {
       if (navigator.canShare?.({ files: [file] })) {
         await navigator.share({
           title: "KIDNAPPED",
-          text: "I just got my ID. What about you? Tag @sarath.chandra.k 👀 #kidnappedshortfilm",
+          text: "I just got my ID. What about you? Share your ID and tag @lawnmates.kino 👀 #kidnappedshortfilm",
           files: [file],
         });
       } else {
