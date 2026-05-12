@@ -317,7 +317,7 @@ export function PreviewPage({ imageDataUrl, onRetake }: PreviewPageProps) {
       if (navigator.canShare?.({ files: [file] })) {
         await navigator.share({
           title: "KIDNAPPED",
-          text: "I just got my ID. What about you? Share your ID and tag @lawnmates.kino 👀 #kidnappedshortfilm",
+          text: "I just got my ID. What about you? Share your ID on Instagram and tag @lawnmates.kino 👀 #kidnappedshortfilm",
           files: [file],
         });
       } else {
@@ -335,7 +335,7 @@ export function PreviewPage({ imageDataUrl, onRetake }: PreviewPageProps) {
   const handleWatch = () => {
     analytics.trackWatchKidnapped(); // ← TRACK
     analytics.flush(); // flush immediately on exit
-    window.open("https://www.youtube.com", "_blank");
+    window.open("https://www.youtube.com/@lawnmates.kinohouse", "_blank");
   };
 
   return (
@@ -391,7 +391,7 @@ export function PreviewPage({ imageDataUrl, onRetake }: PreviewPageProps) {
             onClick={handleWatch}
             className="w-full py-3 border border-red-500 text-red-400 text-xs tracking-widests"
           >
-            WATCH 'KIDNAPPED'
+            SUBSCRIBE TO OUR YOUTUBE CHANNEL
           </button>
         </div>
       </div>
