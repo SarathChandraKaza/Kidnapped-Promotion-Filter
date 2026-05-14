@@ -335,7 +335,7 @@ export function PreviewPage({ imageDataUrl, onRetake }: PreviewPageProps) {
   const handleWatch = () => {
     analytics.trackWatchKidnapped(); // ← TRACK
     analytics.flush(); // flush immediately on exit
-    window.open("https://www.youtube.com/@lawnmates.kinohouse", "_blank");
+    window.open("https://www.youtube.com/watch?v=TC0EsYiUmGw", "_blank");
   };
 
   return (
@@ -391,7 +391,7 @@ export function PreviewPage({ imageDataUrl, onRetake }: PreviewPageProps) {
             onClick={handleWatch}
             className="w-full py-3 border border-red-500 text-red-400 text-xs tracking-widests"
           >
-            SUBSCRIBE TO OUR YOUTUBE CHANNEL
+            Watch our film "Kidnapped" on YouTube
           </button>
         </div>
       </div>
