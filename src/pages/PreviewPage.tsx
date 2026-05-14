@@ -391,7 +391,7 @@ export function PreviewPage({ imageDataUrl, onRetake }: PreviewPageProps) {
             onClick={handleWatch}
             className="w-full py-3 border border-red-500 text-red-400 text-xs tracking-widests"
           >
-            Watch our film "Kidnapped" on YouTube
+            WATCH OUR FILM "KIDNAPPED" ON YOUTUBE
           </button>
         </div>
       </div>
